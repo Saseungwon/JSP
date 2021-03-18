@@ -366,9 +366,213 @@ bad : <%=request.getParameter("bad") %> <br>
 </html>
 ```
 
-####
-```js
+## 📚 2일차
 
+#### 00 input
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<form action="00outVSExpression.jsp">
+	<input type="text" value="" name="out">
+	<input type="submit" value="아웃" name="out">
+</form>
+
+</body>
+</html>
+```
+
+#### 00 out VS Expression
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%
+	String param=request.getParameter("out");
+	if(param.equals("아웃")){
+		out.print(param);
+	}else{
+		%><%=param %><%
+	}
+%>
+<div>
+	<%=param %>
+</div>
+
+</body>
+</html>
+```
+
+#### 01 mime
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+plain
+</body>
+</html>
+```
+
+#### 02 Form
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<form action="02Result.jsp" method="padt">
+	한글 : <input type="text" value="" name="한글">
+	english : <input type="text" value="" name="english">
+	<input type="submit" value="한글이 잘 나옵니다">
+</form>
+
+
+</body>
+</html>
+```
+
+#### 02 Result
+```js
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="UTF-8"%>
+    
+    <%request.setCharacterEncoding("utf-8"); %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+한글 : <%=request.getParameter("한글") %>
+english : <%=request.getParameter("english") %>
+</body>
+</html>
+```
+
+#### 03 declartion
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%
+	out.print(sum(10,54));
+%>
+<br>
+<%!
+	public int sum(int num1,int num2){
+	return num1 + num2;
+}
+
+	public int sumOneToEnd(int num1){
+		int sum=0;
+		for(int i=0; i <= num1; i++){
+			sum+=i;
+		}
+		return sum ;
+	}
+%>
+<%=sumOneToEnd(100) %>
+
+</body>
+</html>
+```
+
+#### 03 declartion2
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%!
+	private String field="fx 끝!";
+	public String getField(){
+	return field;
+	}
+	public void setField(String field){
+		this.field=field;
+	}
+%>
+<%
+	out.print(getField());
+	out.print("<br>");
+	setField("자바 어려워");
+	out.print(getField());
+%>
+
+</body>
+</html>
+```
+
+#### 04 table
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<table border="1">
+<thead>
+<%!
+	StringBuffer sb = new StringBuffer();
+	public String gugu(){
+		for(int i=2; i<=9; i++){
+			sb.append("<td>"+i+"단</td>");
+		}
+		sb.append("<thead>");
+		sb.append("<tr>");
+		for(int i=1; i<=9; i++){
+			for(int j=2; j<=9; j++){
+				sb.append("<td>"+j+"x"+i+"="+(j+i)+"</td>");
+			}sb.append("</tr>");
+		}
+		return sb.toString();
+	}
+%>
+<%=gugu() %>
+</table>
+
+</body>
+</html>
 ```
 
 ####
@@ -376,3 +580,7 @@ bad : <%=request.getParameter("bad") %> <br>
 
 ```
 
+####
+```js
+
+```
