@@ -574,13 +574,360 @@ english : <%=request.getParameter("english") %>
 </body>
 </html>
 ```
+## 📚 3일차
+#### 00SameName.jsp
+ ```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<form action="00sameNameResult.jsp">
+	이름<input type="text" value="" name="name"> <br>
+	나이<input type="text" value="" name="age"> <br>
+	취미 <br>
+	볼링<input type="checkbox" value="볼링" name="hobby"> <br>
+	게임<input type="checkbox" value="게임" name="hobby"> <br>
+	복수<input type="checkbox" value="복수" name="hobby"> <br>
+	피아노<input type="checkbox" value="피아노" name="hobby"> <br>
+	
+	주소<input type="text" value="" name="address"> <br>
+	<button type="submit">자기소개</button>
+</form>
 
-####
+</body>
+</html>
+ ```
+
+#### 00SameName2.jsp
 ```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<form action="00sameNameResult2.jsp">
+	이름<input type="text" value="" name="name"> <br>
+	나이<input type="text" value="" name="age"> <br>
+	취미 <br>
+	볼링<input type="checkbox" value="볼링" name="hobby">
+	게임<input type="checkbox" value="게임" name="hobby">
+	복수<input type="checkbox" value="복수" name="hobby">
+	피아노<input type="checkbox" value="피아노" name="hobby"> <br>
+	
+	주소<input type="text" value="" name="address"> <br>
+	<button type="submit">자기소개</button>
+</form>
 
+</body>
+</html>
 ```
 
-####
+#### 00sameNameResult.jsp
 ```js
+<%@page import="java.util.Map"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+이름 : <%=request.getParameter("name") %>
+나이 : <%=request.getParameter("age") %>
+취미 :
+<%
+/* 	String[] hobbies=request.getParameterValues("hobby");
+	if(hobbies !=null){
+		for(String hobby:hobbies){
+			out.print(hobby+ "    ");
+		}
+	} */
+	Map parameters = request.getParameterMap();
+	String[] hobbies=(String[])parameters.get("hobby");
+	if(hobbies !=null){
+		for(String hobby:hobbies){
+			out.print(hobby+ "    ");
+		}
+	}
+%>
+주소 : <%=request.getParameter("address") %>
+<hr>
+파라미터들
+<%
+	String[] param1=(String[])parameters.get("age");
+	if(param1 !=null){
+		for(String param:param1){
+			out.print(param+ "    ");
+		}
+	}
+	%>
 
+</body>
+</html>
+```
+
+#### 00sameNameResult2.jsp
+```js
+<%@page import="java.util.Enumeration"%>
+<%@page import="java.util.Map"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<%
+	Enumeration paramNames=request.getParameterNames();
+	while(paramNames.hasMoreElements()){
+		String paramName=(String)paramNames.nextElement();
+		out.print(paramName+" : ");
+		
+		Map parameters = request.getParameterMap();
+		String[] param=(String[])parameters.get(paramName);
+		if(param !=null){
+			for(String p:param){
+				out.print(p + "    ");
+			}
+		}
+		out.print("<br>");
+	}
+%>
+
+</body>
+</html>
+```
+
+#### 03Buffer.jsp
+```js
+<%@page import="java.util.Date"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@page buffer="8kb" autoFlush="true" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<!-- 인코딩에 따라 같은 영어문자여도 차지하는 크기가 다르다 -->
+		<!--
+		버퍼사이즈
+		남은버퍼
+		자동플러시
+		플러시
+		클리어버퍼 -->
+		out.clearBuffer();
+		out.flush();
+		out.clear();		
+<ul>
+	<li> 버퍼사이즈 : <%=out.getBufferSize() %>
+	<li> 남은 버퍼 : <%=out.getRemaining() %>
+	<li> 자동플러시여부 : <%=out.isAutoFlush() %>
+</ul>
+
+<%
+	long startTime=System.currentTimeMillis();
+	for(int i=0; i<1000; i++){
+		out.print("일");
+		out.print("이");
+		out.print("삼");
+		out.print("사");
+		out.print("오");
+		out.print("육");
+ 		//out.clearBuffer(); //내용을 지움
+		//out.flush();//다 차지 않았어도 보냄(느려서 잘 안 씀)
+		//out.clear();//내용을 지움 */
+	}
+	out.print("<hr>");
+	long endTime=System.currentTimeMillis();
+	out.print((endTime-startTime)+"초");
+%>
+</body>
+</html>
+```
+
+#### 04pageContext.jsp
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>기본객체 pageContext</title>
+</head>
+<body>
+
+<%
+	if(pageContext.getRequest()==request){
+		out.print("같다");
+	}
+	if(pageContext.getResponse()==response){
+		
+	}	
+%>
+
+</body>
+</html>
+```
+
+#### 05 initparameter.jsp
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<%= application.getInitParameter("name")%>
+	<%=application.getInitParameter("hobby")%>
+</body>
+</html>
+```
+
+#### 06readFileUsingApplication.jsp
+```js
+<%@page import="java.io.IOException"%>
+<%@page import="java.io.InputStreamReader"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<%
+		String resourcePath = "/resource/message/06notice.txt";
+	%>
+	자원의 실제경로 :
+	<br>
+	<%=application.getRealPath(resourcePath) %>
+	<hr>
+	<br>
+	<%=resourcePath %>의 내용
+	<hr>
+	<br>
+	<%
+		char[] buff = new char[128];
+	int len = -1;
+	try(InputStreamReader br = new InputStreamReader(
+			application.getResourceAsStream(resourcePath), "UTF-8")){
+		while((len = br.read(buff)) != -1){
+			out.print(new String(buff,0,len));
+		}
+	}catch(IOException e){
+		out.print(e.getMessage());
+	}
+	%>
+	
+	
+	
+</body>
+</html>
+```
+
+#### 06notice.txt
+```js
+오늘 점심은 한솥
+오늘 점심은 육개장
+저녁은 맛있는 거
+```
+
+#### 07applicationReadAttribute.jsp
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+</body>
+</html>
+```
+
+#### 07applicationSetAttribute.jsp
+```js
+<%@page import="java.util.Enumeration"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<!-- application 모든 속성 읽기 -->
+<%
+	Enumeration<String> apEnum=application.getAttributeNames();
+	while(apEnum.hasMoreElements()){
+		String attributeName=apEnum.nextElement();
+		Object attributeValue=application.getAttribute(attributeName);
+		out.print(attributeName + " : " + attributeValue + "<br>");
+	}
+%>
+
+</body>
+</html>
+```
+
+#### web.xml
+```js
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="WebApp_ID" version="3.0">
+  <display-name>study</display-name>
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+    <welcome-file>index.htm</welcome-file>
+    <welcome-file>index.jsp</welcome-file>
+    <welcome-file>default.html</welcome-file>
+    <welcome-file>default.htm</welcome-file>
+    <welcome-file>default.jsp</welcome-file>
+  </welcome-file-list>
+  
+  <context-param>
+  	<param-name>name</param-name>
+  	<param-value>한창희</param-value>
+  </context-param>
+  
+  <context-param>
+  	<param-name>hobby</param-name>
+  	<param-value>piano</param-value>
+  </context-param>
+  
+<!--   <servlet>
+  	<servlet-name>Mysum</servlet-name>
+  	<servlet-class>study.Mysum</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+  	<servlet-name>Mysum</servlet-name>
+  	<url-pattern>/04/*.do</url-pattern>
+  </servlet-mapping> -->
+</web-app>
 ```
