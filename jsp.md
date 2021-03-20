@@ -931,3 +931,1120 @@ english : <%=request.getParameter("english") %>
   </servlet-mapping> -->
 </web-app>
 ```
+
+
+
+
+## 📚 4일차
+
+#### 00applicationReadAttribute
+```js
+<%@page import="java.util.Enumeration"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<!-- application 모든 속성 읽기 -->
+<%
+	Enumeration<String> apEnum = application.getAttributeNames();
+	while(apEnum.hasMoreElements()) {
+		String attributeName = apEnum.nextElement();
+		Object attributeValue = application.getAttribute(attributeName);
+		out.print("application 속성 : " + attributeName + " : " + attributeValue + "<br>");
+	}
+%>
+
+</body>
+</html>
+```
+
+#### 00applicationSetAttribute
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    <%request.setCharacterEncoding("UTF-8"); %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<%
+	application.setAttribute("황미선", 21);	// 	레퍼클래스를 감싸
+ 	application.setAttribute("윤현식", 23);
+ 	application.setAttribute("고창식", 25);
+%>
+
+</body>
+</html>
+```
+
+#### 01requestAttribute
+```js
+<%@page import="java.util.List"%>
+<%@page import="java.util.ArrayList"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+	<%
+		request.setAttribute("안석진", "칭구");
+	List<Integer> arr1 = new ArrayList<Integer>();
+	arr1.add(1);
+	arr1.add(2);
+	arr1.add(3);
+	request.setAttribute("관저", arr1);
+	%>
+	<br>
+	<br>
+	<%
+		List<Integer> arr = (List<Integer>) (request.getAttribute("관저"));
+	for (int i = 0; i < arr.size(); i++) {
+		out.print(arr.get(i) + "<br>");
+	}
+	%>
+</body>
+</html>
+```
+
+#### 01requestAttributeEX
+```js
+<%@page import="java.util.Collections"%>
+<%@page import="java.util.Comparator"%>
+<%@page import="java.util.ArrayList"%>
+<%@page import="java.util.List"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>application 기본 객체 사용하여 자원 읽기</title>
+</head>
+<body>
+	리스트 1, 2 교집합 차집합 합집합 리스트 만들고 출력해보기
+
+<%
+	List<Integer> List1 = new ArrayList<Integer>();
+	List<Integer> List2 = new ArrayList<Integer>();
+	List1.add(1);
+	List1.add(3);
+	List1.add(4);
+	List1.add(5);
+	List1.add(8);
+	List2.add(1);
+	List2.add(8);
+	List2.add(5);
+	List2.add(7);
+	List2.add(10);
+	
+	// kyo  1,8,5   cha    list1-list2   3,4      hap   1,3,4,5,7,8,10
+	List<Integer> kyo = new ArrayList<Integer>();
+	List<Integer> cha = new ArrayList<Integer>();
+	List<Integer> hap = new ArrayList<Integer>();
+	
+	kyo.addAll(List1); //List1 값 다 더하기
+	kyo.retainAll(List2); //리스트2에 있는 값 빼기
+	
+	cha.addAll(List1); // kyo List1 원소가 같음
+	cha.removeAll(List2); //리스트2에 있는 값 빼기
+	
+	hap.addAll(cha);
+	hap.addAll(List2);
+	hap.sort(Comparator.naturalOrder());
+	/* hap.sort(null); */
+	Collections.sort(hap);
+	
+	//kyo     cha     hap을 setAttribute하고
+	//retain addAll remove
+	
+	request.setAttribute("kyo", kyo);
+	request.setAttribute("cha", cha);
+	request.setAttribute("hap", hap);
+%>
+
+kyo	<%=request.getAttribute("kyo")%><br>
+<!-- List가 문자열로 출력됨 -->
+cha	<%=request.getAttribute("cha")%><br>
+hap	<%=request.getAttribute("hap")%><br>
+</body>
+</html>
+```
+
+#### 02errorMain
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    
+    <!-- 에러 발생시 보여줄 페이지 지정해줌 -->
+    
+ <%@ page errorPage="02errorPage.jsp" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>에러발생 시켜보기</title>
+</head>
+<body>
+<%-- <%
+String a=null;
+a.substring(0);
+%> --%>
+ <%=request.getParameter("aa").substring(0)%>
+
+</body>
+</html>
+```
+
+#### 02errorPage
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    
+    <!-- 에러 발생시 보여줄 페이지 지정해줌 -->
+    
+ <%@ page errorPage="02errorPage.jsp" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>에러발생 시켜보기</title>
+</head>
+<body>
+<%-- <%
+String a=null;
+a.substring(0);
+%> --%>
+ <%=request.getParameter("aa").substring(0)%>
+
+</body>
+</html>
+```
+
+#### 02main
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+100 : 해당 요청을 진행중 <br>
+200 : 요청을 정상적으로 처리 했음 <br>
+300 : 요청의 정보가 변경되었음 <br>
+400 : 잘못된 요청(404, 401, 403) <br>
+500 : 내부 서버 오류(서버 프로그램의 오류) <br><br>
+
+에러페이지 우선 순위 <br>
+1. 디렉티브 페이지 errorpage   <%-- <%@ page errorPage="02mypage.jsp" %> --%><br>
+2. exception-type <br>
+3. 응답 상태코드 <br>
+
+<form action="02mypage.jsp">
+나이 : <input type="number" name="age" min="10" max="99"><br>
+<button type="submit">제출</button>
+</form>
+</body>
+</html>
+```
+
+#### 02mypage
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+     <%-- <%@ page isErrorPage="true" %>    --%>
+     <%-- <%@page errorPage="02errorPage.jsp" %> --%>
+     
+     
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>02/mypage.jsp</title>
+<h1> 주말이다
+	성심당 가야지
+</h1>
+
+<%out.flush(); %>
+
+<%
+	int age = Integer.parseInt(request.getParameter("age"));
+if(age > 50) {
+	throw new IndexOutOfBoundsException();
+}else if(age%2==0) { //짝수면 에러
+	throw new ClassCastException();
+}
+%>
+<%=age %>
+
+</head>
+<body>
+</body>
+</html>
+```
+
+#### 03Main
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    
+    <%
+    	request.setCharacterEncoding("UTF-8");
+    %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+03main 	전
+<%@ include file="03sub.jsp" %>
+<jsp:include page="03sub.jsp" /> <!-- 반복되는 부분을 sub파일로 만들고 main에 삽입 -->
+03main		후
+
+</body>
+</html>
+```
+
+#### 04sub
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<h1>sub에 만들어진 내용</h1>
+</body>
+</html>
+```
+
+#### 04jspPram
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    <%
+    	request.setCharacterEncoding("UTF-8");
+    %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<p>sub전</p>
+<!-- url에 ? name 한창희 넣어보자  -->
+<jsp:include page="04sub.jsp">
+	<jsp:param value="한창희" name="name"/>
+	<jsp:param value="30" name="age"/>
+</jsp:include>		<!-- jsp인클루드 사이에 주석 못 들어간다. -->
+
+<p>sub 후</p>
+</body>
+</html>
+```
+
+#### 04sub
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    <%
+    	request.setCharacterEncoding("UTF-8");
+    %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+이름 : <%=request.getParameter("name") %>
+나이 : <%=request.getParameter("age") %>
+태정 : <%=request.getParameter("taejeong") %>
+
+</body>
+</html>
+```
+
+#### 05input
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<div class="container">
+	<div id="content">
+		<h3>성심당 좋아요</h3>
+		<form action="05other.jsp">
+			나이 : <input type="number" name="age" min="10" max="99"> <br>
+			<button type="submit">제출</button>
+		</form>
+	</div>
+</div>
+
+</body>
+</html>
+```
+
+#### 05other
+```js
+<%@page import="java.util.ArrayList"%>
+<%@page import="java.util.List"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    
+        <%
+    	request.setCharacterEncoding("UTF-8");
+    %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<div class="container">
+<%
+	String aa = request.getParameter("age");
+	int age = Integer.parseInt(aa);
+	List list = new ArrayList();
+	String res = "애기";
+	if(age < 20){
+		res = "청소년";
+		list.add("로제");
+		list.add("다미");
+	}else if(age < 30){
+		res = "청년";
+		list.add("1");
+		list.add("2");
+		list.add("3");
+		list.add("4");
+	}else{
+		res = "노인네";
+		list.add("A");
+		list.add("B");
+		list.add("C");
+		list.add("D");
+	}
+	request.setAttribute("hate", list);
+%>
+<p>jsp include 실행전</p>
+<jsp:include page="05otherinclude.jsp">
+	<jsp:param value="<%=res %>" name="res"/>
+	<jsp:param value="<%=age %>" name="age"/>
+</jsp:include>
+
+<p> jsp include 실행 후 </p>
+저녁메뉴 : <%=request.getAttribute("dinnerMenu") %>
+
+</div>
+
+</body>
+</html>
+```
+
+#### 05otherinclude
+```js
+<%@page import="java.util.List"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<div class="container">
+<%
+		List<String> hate=(List<String>)(request.getAttribute("hate"));
+%>
+
+res : <%= request.getParameter("res") %> <br>
+age : <%= request.getParameter("age") %> <br>
+hateList : <% for(String hateElement : hate){
+						out.println(hateElement);
+	}
+	%>
+	
+	<%
+		request.setAttribute("dinnerMenu", "청국장");
+	%>
+
+</div>
+
+</body>
+</html>
+```
+
+#### errorBound
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    <%@ page isErrorPage="true" %>
+<%--
+	Daum -> Jiwon
+	다음 -> 지원
+	Kakao -> Jiwon
+ --%>
+<!DOCTYPE html>
+<html lang="ko" class="os_mac chrome pc version_56_0_2924_87">
+<head>
+	<meta charset="utf-8">
+		<title>IndexOutOfBoundsException</title>
+		<meta http-equiv="X-UA-Compatible" content="IE=Edge">	
+	<style type="text/css">
+		/* reset */
+		body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,textarea,p,blockquote,th,td,input,select,button{margin:0;padding:0}
+		fieldset,img{border:0 none}
+		dl,ul,ol,menu,li{list-style:none}
+		blockquote, q{quotes: none}
+		blockquote:before, blockquote:after,q:before, q:after{content:'';content:none}
+		input,select,textarea,button{vertical-align:middle}
+		input::-ms-clear{display:none}
+		button{border:0 none;background-color:transparent;cursor:pointer}
+		body{background:#fbfbfc}
+		body,th,td,input,select,textarea,button{font-size:12px;line-height:1.5;font-family:AppleSDGothicNeo-Regular,'Malgun Gothic','맑은 고딕',dotum,'돋움',sans-serif;color:#222;letter-spacing:-0.5px}
+		a{color:#333;text-decoration:none}
+		a:active, a:hover{text-decoration:underline}
+		a:active{background-color:transparent}
+		address,caption,cite,code,dfn,em,var{font-style:normal;font-weight:normal}
+		
+		/* global */
+		.ir_pm{display:block;overflow:hidden;font-size:0;line-height:0;text-indent:-9999px}
+		.ir_wa{display:block;overflow:hidden;position:relative;z-index:-1;width:100%;height:100%}
+		.screen_out{overflow:hidden;position:absolute;width:0;height:0;line-height:0;text-indent:-9999px}
+		.hide{display:none}
+		
+		/* error */
+		.img_error{overflow:hidden;background:url(http://t1.daumcdn.net/daumtop_deco/error/pc/img_error.png) no-repeat 0 0;font-size:0;line-height:0;vertical-align:top;text-indent:-9999px}
+		.page_error{width:600px;margin:103px auto 0}
+		.page_error .head_error{overflow:hidden}
+		.page_error .head_error h1{float:left}
+		.page_error .link_daum{display:block;width:69px;height:28px;background:url(http://t1.daumcdn.net/daumtop_deco/error/pc/img_error.png) no-repeat 0 0}
+		.page_error .cont_error{position:relative;margin-top:19px;min-height:180px;padding:70px 0 200px;border-top:2px solid #222}
+		.page_error .tit_error{margin-bottom:33px;font-weight:normal;font-size:36px;line-height:45px;letter-spacing:-3.5px}
+		.os_mac .page_error .tit_error{letter-spacing:-0.5px}
+		.page_error .emph_txt{color:#e30000}
+		.page_error .desc_error{margin-top:9px;font-size:14px;line-height:22px}
+		.page_error .info_link{position:absolute;right:0;top:-45px;overflow:hidden}
+		.os_mac .page_error .info_link{top:-38px}
+		.page_error .info_link .link_error{float:left;margin-left:12px;color:#555}
+		.page_error .wrap_form{position:absolute;left:50%;bottom:70px;width:420px;margin-left:-210px}
+		.page_error .wrap_inp{position:relative;height:24px;padding:10px 0;border:1px solid #bfbfbf;background:#fff}
+		.page_error .lab_search{position:absolute;left:14px;top:11px;font-size:14px;color:#888}
+		.os_mac .page_error .lab_search{top:13px}
+		.page_error .inp_search{display:block;width:348px;height:24px;padding-left:14px;font-size:14px;border:0 none;background:none;outline:0}
+		.page_error .btn_search{position:absolute;right:0;top:0;width:50px;height:44px;background-position:0 -30px}
+		.page_error .link_cs{color:#118eff;text-decoration:underline}
+		.page_error .foot_error{padding-top:15px;border-top:1px solid #222}
+		.page_error .info_copyright{font-size:11px;color:#888}
+		.page_error .link_kakao{color:#888}
+		
+		/*** 레티나 대응 ***/
+		@media
+		only screen and (-webkit-min-device-pixel-ratio:1.5),
+		only screen and (min-device-pixel-ratio:1.5),
+		only screen and (min-resolution:144dpi),
+		only screen and (min-resolution:1.5dppx){
+		.img_error{background-image:url(http://t1.daumcdn.net/daumtop_deco/error/pc/rtn/img_error.png);background-size:70px 80px;-webkit-background-size:70px 80px}
+		.page_error .link_daum{background-image:url(http://t1.daumcdn.net/daumtop_deco/error/pc/rtn/img_error.png);background-size:70px 80px;-webkit-background-size:70px 80px}
+		}
+	</style>
+</head>
+<body>
+<div id="kakaoWrap" class="page_error">
+	<div id="kakaoHead" role="banner" class="head_error">
+		<h1>
+			<a href="http://www.daum.net/" class="link_daum"><span class="ir_wa">Jiwon</span></a>
+		</h1>
+	</div>
+	<hr class="hide">
+	<div id="kakaoContent" class="cont_error" role="main">
+				<h2 class="tit_error">입력값에 <span class="emph_txt">문제가 있습니다.</span></h2>
+		<p class="desc_error">
+			IndexOutOfBoundsException<br>
+			방문 원하시는 페이지의 주소가 잘못 입력되었거나,<br>
+			변경 혹은 삭제되어 요청하신 페이지를 찾을 수가 없습니다.
+		</p>
+		<p class="desc_error">
+			입력하신 페이지의 주소가 정확한지 다시 한번 확인해 주시기 바랍니다.
+		</p>
+		<p class="desc_error">
+			관련해 <a href="http://cs.daum.net/" class="link_cs">고객센터</a>로 문의해 주시면 친절하게 안내해 드리겠습니다.
+		</p>
+				<h3 class="screen_out">검색</h3>
+		<div class="wrap_form">
+			<form action="http://search.daum.net/search">
+				<fieldset>
+					<legend class="screen_out">검색어 입력폼</legend>
+					<div class="wrap_inp">
+						<label for="inpSearch" id="searchLabel" class="lab_search">통합검색</label>
+						<input type="text" id="inpSearch" class="inp_search" name="q" autocomplete="off" spellcheck="false" />
+						<button type="submit" class="img_error btn_search">검색</button>
+					</div>
+				</fieldset>
+			</form>
+		</div>
+		<div class="info_link">
+			<a href="http://www.daum.net/" class="link_error">메인화면</a>
+			<a href="http://cs.daum.net/" class="link_error ">고객센터</a>
+		</div>
+	</div>
+	<hr class="hide">
+	<div id="kakaoFoot" class="foot_error" role="contentinfo">
+		<small class="info_copyright">Copyright &copy; <a href="http://www.kakaocorp.com/" target="_blank" class="link_kakao">Jiwon Corp.</a> All rights reserved.</small>
+	</div>
+</div>
+<script type="text/javascript">
+//<![CDATA[
+function init() {
+	var inpSearch = document.getElementById('inpSearch');
+	var searchLabel = document.getElementById('searchLabel');
+	if(inpSearch) {
+		inpSearch.onfocus = function() {
+			searchLabel.className = 'screen_out';
+		}
+		inpSearch.onblur = function() {
+			if(inpSearch.value.length==0){
+				searchLabel.className = 'lab_search';
+			}
+		}
+	}
+}
+init();
+//]]>
+</script>
+</body>
+</html>
+```
+
+#### error404
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    <%@ page isErrorPage="true" %>            <!-- 이거 지우고 web.xml에 설정하는거 나중에  -->    
+<%--
+	Daum -> Jiwon
+	다음 -> 지원
+	Kakao -> Jiwon
+ --%>
+<!DOCTYPE html>
+<html lang="ko" class="os_mac chrome pc version_56_0_2924_87">
+<head>
+	<meta charset="utf-8">
+		<title>error 404</title>
+		<meta http-equiv="X-UA-Compatible" content="IE=Edge">	
+	<style type="text/css">
+		/* reset */
+		body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,textarea,p,blockquote,th,td,input,select,button{margin:0;padding:0}
+		fieldset,img{border:0 none}
+		dl,ul,ol,menu,li{list-style:none}
+		blockquote, q{quotes: none}
+		blockquote:before, blockquote:after,q:before, q:after{content:'';content:none}
+		input,select,textarea,button{vertical-align:middle}
+		input::-ms-clear{display:none}
+		button{border:0 none;background-color:transparent;cursor:pointer}
+		body{background:#fbfbfc}
+		body,th,td,input,select,textarea,button{font-size:12px;line-height:1.5;font-family:AppleSDGothicNeo-Regular,'Malgun Gothic','맑은 고딕',dotum,'돋움',sans-serif;color:#222;letter-spacing:-0.5px}
+		a{color:#333;text-decoration:none}
+		a:active, a:hover{text-decoration:underline}
+		a:active{background-color:transparent}
+		address,caption,cite,code,dfn,em,var{font-style:normal;font-weight:normal}
+		
+		/* global */
+		.ir_pm{display:block;overflow:hidden;font-size:0;line-height:0;text-indent:-9999px}
+		.ir_wa{display:block;overflow:hidden;position:relative;z-index:-1;width:100%;height:100%}
+		.screen_out{overflow:hidden;position:absolute;width:0;height:0;line-height:0;text-indent:-9999px}
+		.hide{display:none}
+		
+		/* error */
+		.img_error{overflow:hidden;background:url(http://t1.daumcdn.net/daumtop_deco/error/pc/img_error.png) no-repeat 0 0;font-size:0;line-height:0;vertical-align:top;text-indent:-9999px}
+		.page_error{width:600px;margin:103px auto 0}
+		.page_error .head_error{overflow:hidden}
+		.page_error .head_error h1{float:left}
+		.page_error .link_daum{display:block;width:69px;height:28px;background:url(http://t1.daumcdn.net/daumtop_deco/error/pc/img_error.png) no-repeat 0 0}
+		.page_error .cont_error{position:relative;margin-top:19px;min-height:180px;padding:70px 0 200px;border-top:2px solid #222}
+		.page_error .tit_error{margin-bottom:33px;font-weight:normal;font-size:36px;line-height:45px;letter-spacing:-3.5px}
+		.os_mac .page_error .tit_error{letter-spacing:-0.5px}
+		.page_error .emph_txt{color:#e30000}
+		.page_error .desc_error{margin-top:9px;font-size:14px;line-height:22px}
+		.page_error .info_link{position:absolute;right:0;top:-45px;overflow:hidden}
+		.os_mac .page_error .info_link{top:-38px}
+		.page_error .info_link .link_error{float:left;margin-left:12px;color:#555}
+		.page_error .wrap_form{position:absolute;left:50%;bottom:70px;width:420px;margin-left:-210px}
+		.page_error .wrap_inp{position:relative;height:24px;padding:10px 0;border:1px solid #bfbfbf;background:#fff}
+		.page_error .lab_search{position:absolute;left:14px;top:11px;font-size:14px;color:#888}
+		.os_mac .page_error .lab_search{top:13px}
+		.page_error .inp_search{display:block;width:348px;height:24px;padding-left:14px;font-size:14px;border:0 none;background:none;outline:0}
+		.page_error .btn_search{position:absolute;right:0;top:0;width:50px;height:44px;background-position:0 -30px}
+		.page_error .link_cs{color:#118eff;text-decoration:underline}
+		.page_error .foot_error{padding-top:15px;border-top:1px solid #222}
+		.page_error .info_copyright{font-size:11px;color:#888}
+		.page_error .link_kakao{color:#888}
+		
+		/*** 레티나 대응 ***/
+		@media
+		only screen and (-webkit-min-device-pixel-ratio:1.5),
+		only screen and (min-device-pixel-ratio:1.5),
+		only screen and (min-resolution:144dpi),
+		only screen and (min-resolution:1.5dppx){
+		.img_error{background-image:url(http://t1.daumcdn.net/daumtop_deco/error/pc/rtn/img_error.png);background-size:70px 80px;-webkit-background-size:70px 80px}
+		.page_error .link_daum{background-image:url(http://t1.daumcdn.net/daumtop_deco/error/pc/rtn/img_error.png);background-size:70px 80px;-webkit-background-size:70px 80px}
+		}
+	</style>
+</head>
+<body>
+<div id="kakaoWrap" class="page_error">
+	<div id="kakaoHead" role="banner" class="head_error">
+		<h1>
+			<a href="http://www.daum.net/" class="link_daum"><span class="ir_wa">Jiwon</span></a>
+		</h1>
+	</div>
+	<hr class="hide">
+	<div id="kakaoContent" class="cont_error" role="main">
+				<h2 class="tit_error">원하시는 페이지를 <span class="emph_txt">찾을 수가 없습니다.404</span></h2>
+		<p class="desc_error">
+			방문 원하시는 페이지의 주소가 잘못 입력되었거나,<br>
+			변경 혹은 삭제되어 요청하신 페이지를 찾을 수가 없습니다.
+		</p>
+		<p class="desc_error">
+			입력하신 페이지의 주소가 정확한지 다시 한번 확인해 주시기 바랍니다.
+		</p>
+		<p class="desc_error">
+			관련해 <a href="http://cs.daum.net/" class="link_cs">고객센터</a>로 문의해 주시면 친절하게 안내해 드리겠습니다.
+		</p>
+				<h3 class="screen_out">검색</h3>
+		<div class="wrap_form">
+			<form action="http://search.daum.net/search">
+				<fieldset>
+					<legend class="screen_out">검색어 입력폼</legend>
+					<div class="wrap_inp">
+						<label for="inpSearch" id="searchLabel" class="lab_search">통합검색</label>
+						<input type="text" id="inpSearch" class="inp_search" name="q" autocomplete="off" spellcheck="false" />
+						<button type="submit" class="img_error btn_search">검색</button>
+					</div>
+				</fieldset>
+			</form>
+		</div>
+		<div class="info_link">
+			<a href="http://www.daum.net/" class="link_error">메인화면</a>
+			<a href="http://cs.daum.net/" class="link_error ">고객센터</a>
+		</div>
+	</div>
+	<hr class="hide">
+	<div id="kakaoFoot" class="foot_error" role="contentinfo">
+		<small class="info_copyright">Copyright &copy; <a href="http://www.kakaocorp.com/" target="_blank" class="link_kakao">Jiwon Corp.</a> All rights reserved.</small>
+	</div>
+</div>
+<script type="text/javascript">
+//<![CDATA[
+function init() {
+	var inpSearch = document.getElementById('inpSearch');
+	var searchLabel = document.getElementById('searchLabel');
+	if(inpSearch) {
+		inpSearch.onfocus = function() {
+			searchLabel.className = 'screen_out';
+		}
+		inpSearch.onblur = function() {
+			if(inpSearch.value.length==0){
+				searchLabel.className = 'lab_search';
+			}
+		}
+	}
+}
+init();
+//]]>
+</script>
+</body>
+</html>
+```
+
+#### error500
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ page isErrorPage="true" %>
+<!DOCTYPE html>
+<html lang="ko" class="os_mac chrome pc version_56_0_2924_87">
+<head>
+	<meta charset="utf-8">
+		<title>error 500</title>
+		<meta http-equiv="X-UA-Compatible" content="IE=Edge">	
+	<style type="text/css">
+		/* reset */
+		body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,textarea,p,blockquote,th,td,input,select,button{margin:0;padding:0}
+		fieldset,img{border:0 none}
+		dl,ul,ol,menu,li{list-style:none}
+		blockquote, q{quotes: none}
+		blockquote:before, blockquote:after,q:before, q:after{content:'';content:none}
+		input,select,textarea,button{vertical-align:middle}
+		input::-ms-clear{display:none}
+		button{border:0 none;background-color:transparent;cursor:pointer}
+		body{background:#fbfbfc}
+		body,th,td,input,select,textarea,button{font-size:12px;line-height:1.5;font-family:AppleSDGothicNeo-Regular,'Malgun Gothic','맑은 고딕',dotum,'돋움',sans-serif;color:#222;letter-spacing:-0.5px}
+		a{color:#333;text-decoration:none}
+		a:active, a:hover{text-decoration:underline}
+		a:active{background-color:transparent}
+		address,caption,cite,code,dfn,em,var{font-style:normal;font-weight:normal}
+		
+		/* global */
+		.ir_pm{display:block;overflow:hidden;font-size:0;line-height:0;text-indent:-9999px}
+		.ir_wa{display:block;overflow:hidden;position:relative;z-index:-1;width:100%;height:100%}
+		.screen_out{overflow:hidden;position:absolute;width:0;height:0;line-height:0;text-indent:-9999px}
+		.hide{display:none}
+		
+		/* error */
+		.img_error{overflow:hidden;background:url(http://t1.daumcdn.net/daumtop_deco/error/pc/img_error.png) no-repeat 0 0;font-size:0;line-height:0;vertical-align:top;text-indent:-9999px}
+		.page_error{width:600px;margin:103px auto 0}
+		.page_error .head_error{overflow:hidden}
+		.page_error .head_error h1{float:left}
+		.page_error .link_daum{display:block;width:69px;height:28px;background:url(http://t1.daumcdn.net/daumtop_deco/error/pc/img_error.png) no-repeat 0 0}
+		.page_error .cont_error{position:relative;margin-top:19px;min-height:180px;padding:70px 0 200px;border-top:2px solid #222}
+		.page_error .tit_error{margin-bottom:33px;font-weight:normal;font-size:36px;line-height:45px;letter-spacing:-3.5px}
+		.os_mac .page_error .tit_error{letter-spacing:-0.5px}
+		.page_error .emph_txt{color:#e30000}
+		.page_error .desc_error{margin-top:9px;font-size:14px;line-height:22px}
+		.page_error .info_link{position:absolute;right:0;top:-45px;overflow:hidden}
+		.os_mac .page_error .info_link{top:-38px}
+		.page_error .info_link .link_error{float:left;margin-left:12px;color:#555}
+		.page_error .wrap_form{position:absolute;left:50%;bottom:70px;width:420px;margin-left:-210px}
+		.page_error .wrap_inp{position:relative;height:24px;padding:10px 0;border:1px solid #bfbfbf;background:#fff}
+		.page_error .lab_search{position:absolute;left:14px;top:11px;font-size:14px;color:#888}
+		.os_mac .page_error .lab_search{top:13px}
+		.page_error .inp_search{display:block;width:348px;height:24px;padding-left:14px;font-size:14px;border:0 none;background:none;outline:0}
+		.page_error .btn_search{position:absolute;right:0;top:0;width:50px;height:44px;background-position:0 -30px}
+		.page_error .link_cs{color:#118eff;text-decoration:underline}
+		.page_error .foot_error{padding-top:15px;border-top:1px solid #222}
+		.page_error .info_copyright{font-size:11px;color:#888}
+		.page_error .link_kakao{color:#888}
+		
+		/*** 레티나 대응 ***/
+		@media
+		only screen and (-webkit-min-device-pixel-ratio:1.5),
+		only screen and (min-device-pixel-ratio:1.5),
+		only screen and (min-resolution:144dpi),
+		only screen and (min-resolution:1.5dppx){
+		.img_error{background-image:url(http://t1.daumcdn.net/daumtop_deco/error/pc/rtn/img_error.png);background-size:70px 80px;-webkit-background-size:70px 80px}
+		.page_error .link_daum{background-image:url(http://t1.daumcdn.net/daumtop_deco/error/pc/rtn/img_error.png);background-size:70px 80px;-webkit-background-size:70px 80px}
+		}
+	</style>
+</head>
+<body>
+<div id="kakaoWrap" class="page_error">
+	<div id="kakaoHead" role="banner" class="head_error">
+		<h1>
+			<a href="http://www.daum.net/" class="link_daum"><span class="ir_wa">Jiwon</span></a>
+		</h1>
+	</div>
+	<hr class="hide">
+	<div id="kakaoContent" class="cont_error" role="main">
+				<h2 class="tit_error">내부 서버 오류 <span class="emph_txt">가 있습니다.</span></h2>
+		<p class="desc_error">
+			ClassCastException<br>
+			방문 원하시는 페이지의 주소가 잘못 입력되었거나,<br>
+			변경 혹은 삭제되어 요청하신 페이지를 찾을 수가 없습니다.<br>
+			메시지 : <%=exception.getMessage() %>
+			예외타입 : <%= exception.getClass().getName() %>
+		</p>
+		<p class="desc_error">
+			입력하신 페이지의 주소가 정확한지 다시 한번 확인해 주시기 바랍니다.
+		</p>
+		<p class="desc_error">
+			관련해 <a href="http://cs.daum.net/" class="link_cs">고객센터</a>로 문의해 주시면 친절하게 안내해 드리겠습니다.
+		</p>
+				<h3 class="screen_out">검색</h3>
+		<div class="wrap_form">
+			<form action="http://search.daum.net/search">
+				<fieldset>
+					<legend class="screen_out">검색어 입력폼</legend>
+					<div class="wrap_inp">
+						<label for="inpSearch" id="searchLabel" class="lab_search">통합검색</label>
+						<input type="text" id="inpSearch" class="inp_search" name="q" autocomplete="off" spellcheck="false" />
+						<button type="submit" class="img_error btn_search">검색</button>
+					</div>
+				</fieldset>
+			</form>
+		</div>
+		<div class="info_link">
+			<a href="http://www.daum.net/" class="link_error">메인화면</a>
+			<a href="http://cs.daum.net/" class="link_error ">고객센터</a>
+		</div>
+	</div>
+	<hr class="hide">
+	<div id="kakaoFoot" class="foot_error" role="contentinfo">
+		<small class="info_copyright">Copyright &copy; <a href="http://www.kakaocorp.com/" target="_blank" class="link_kakao">Jiwon Corp.</a> All rights reserved.</small>
+	</div>
+</div>
+<script type="text/javascript">
+//<![CDATA[
+function init() {
+	var inpSearch = document.getElementById('inpSearch');
+	var searchLabel = document.getElementById('searchLabel');
+	if(inpSearch) {
+		inpSearch.onfocus = function() {
+			searchLabel.className = 'screen_out';
+		}
+		inpSearch.onblur = function() {
+			if(inpSearch.value.length==0){
+				searchLabel.className = 'lab_search';
+			}
+		}
+	}
+}
+init();
+//]]>
+</script>
+</body>
+</html>
+```
+
+#### errorBound
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    <%@ page isErrorPage="true" %>
+<%--
+	Daum -> Jiwon
+	다음 -> 지원
+	Kakao -> Jiwon
+ --%>
+<!DOCTYPE html>
+<html lang="ko" class="os_mac chrome pc version_56_0_2924_87">
+<head>
+	<meta charset="utf-8">
+		<title>IndexOutOfBoundsException</title>
+		<meta http-equiv="X-UA-Compatible" content="IE=Edge">	
+	<style type="text/css">
+		/* reset */
+		body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,textarea,p,blockquote,th,td,input,select,button{margin:0;padding:0}
+		fieldset,img{border:0 none}
+		dl,ul,ol,menu,li{list-style:none}
+		blockquote, q{quotes: none}
+		blockquote:before, blockquote:after,q:before, q:after{content:'';content:none}
+		input,select,textarea,button{vertical-align:middle}
+		input::-ms-clear{display:none}
+		button{border:0 none;background-color:transparent;cursor:pointer}
+		body{background:#fbfbfc}
+		body,th,td,input,select,textarea,button{font-size:12px;line-height:1.5;font-family:AppleSDGothicNeo-Regular,'Malgun Gothic','맑은 고딕',dotum,'돋움',sans-serif;color:#222;letter-spacing:-0.5px}
+		a{color:#333;text-decoration:none}
+		a:active, a:hover{text-decoration:underline}
+		a:active{background-color:transparent}
+		address,caption,cite,code,dfn,em,var{font-style:normal;font-weight:normal}
+		
+		/* global */
+		.ir_pm{display:block;overflow:hidden;font-size:0;line-height:0;text-indent:-9999px}
+		.ir_wa{display:block;overflow:hidden;position:relative;z-index:-1;width:100%;height:100%}
+		.screen_out{overflow:hidden;position:absolute;width:0;height:0;line-height:0;text-indent:-9999px}
+		.hide{display:none}
+		
+		/* error */
+		.img_error{overflow:hidden;background:url(http://t1.daumcdn.net/daumtop_deco/error/pc/img_error.png) no-repeat 0 0;font-size:0;line-height:0;vertical-align:top;text-indent:-9999px}
+		.page_error{width:600px;margin:103px auto 0}
+		.page_error .head_error{overflow:hidden}
+		.page_error .head_error h1{float:left}
+		.page_error .link_daum{display:block;width:69px;height:28px;background:url(http://t1.daumcdn.net/daumtop_deco/error/pc/img_error.png) no-repeat 0 0}
+		.page_error .cont_error{position:relative;margin-top:19px;min-height:180px;padding:70px 0 200px;border-top:2px solid #222}
+		.page_error .tit_error{margin-bottom:33px;font-weight:normal;font-size:36px;line-height:45px;letter-spacing:-3.5px}
+		.os_mac .page_error .tit_error{letter-spacing:-0.5px}
+		.page_error .emph_txt{color:#e30000}
+		.page_error .desc_error{margin-top:9px;font-size:14px;line-height:22px}
+		.page_error .info_link{position:absolute;right:0;top:-45px;overflow:hidden}
+		.os_mac .page_error .info_link{top:-38px}
+		.page_error .info_link .link_error{float:left;margin-left:12px;color:#555}
+		.page_error .wrap_form{position:absolute;left:50%;bottom:70px;width:420px;margin-left:-210px}
+		.page_error .wrap_inp{position:relative;height:24px;padding:10px 0;border:1px solid #bfbfbf;background:#fff}
+		.page_error .lab_search{position:absolute;left:14px;top:11px;font-size:14px;color:#888}
+		.os_mac .page_error .lab_search{top:13px}
+		.page_error .inp_search{display:block;width:348px;height:24px;padding-left:14px;font-size:14px;border:0 none;background:none;outline:0}
+		.page_error .btn_search{position:absolute;right:0;top:0;width:50px;height:44px;background-position:0 -30px}
+		.page_error .link_cs{color:#118eff;text-decoration:underline}
+		.page_error .foot_error{padding-top:15px;border-top:1px solid #222}
+		.page_error .info_copyright{font-size:11px;color:#888}
+		.page_error .link_kakao{color:#888}
+		
+		/*** 레티나 대응 ***/
+		@media
+		only screen and (-webkit-min-device-pixel-ratio:1.5),
+		only screen and (min-device-pixel-ratio:1.5),
+		only screen and (min-resolution:144dpi),
+		only screen and (min-resolution:1.5dppx){
+		.img_error{background-image:url(http://t1.daumcdn.net/daumtop_deco/error/pc/rtn/img_error.png);background-size:70px 80px;-webkit-background-size:70px 80px}
+		.page_error .link_daum{background-image:url(http://t1.daumcdn.net/daumtop_deco/error/pc/rtn/img_error.png);background-size:70px 80px;-webkit-background-size:70px 80px}
+		}
+	</style>
+</head>
+<body>
+<div id="kakaoWrap" class="page_error">
+	<div id="kakaoHead" role="banner" class="head_error">
+		<h1>
+			<a href="http://www.daum.net/" class="link_daum"><span class="ir_wa">Jiwon</span></a>
+		</h1>
+	</div>
+	<hr class="hide">
+	<div id="kakaoContent" class="cont_error" role="main">
+				<h2 class="tit_error">입력값에 <span class="emph_txt">문제가 있습니다.</span></h2>
+		<p class="desc_error">
+			IndexOutOfBoundsException<br>
+			방문 원하시는 페이지의 주소가 잘못 입력되었거나,<br>
+			변경 혹은 삭제되어 요청하신 페이지를 찾을 수가 없습니다.
+		</p>
+		<p class="desc_error">
+			입력하신 페이지의 주소가 정확한지 다시 한번 확인해 주시기 바랍니다.
+		</p>
+		<p class="desc_error">
+			관련해 <a href="http://cs.daum.net/" class="link_cs">고객센터</a>로 문의해 주시면 친절하게 안내해 드리겠습니다.
+		</p>
+				<h3 class="screen_out">검색</h3>
+		<div class="wrap_form">
+			<form action="http://search.daum.net/search">
+				<fieldset>
+					<legend class="screen_out">검색어 입력폼</legend>
+					<div class="wrap_inp">
+						<label for="inpSearch" id="searchLabel" class="lab_search">통합검색</label>
+						<input type="text" id="inpSearch" class="inp_search" name="q" autocomplete="off" spellcheck="false" />
+						<button type="submit" class="img_error btn_search">검색</button>
+					</div>
+				</fieldset>
+			</form>
+		</div>
+		<div class="info_link">
+			<a href="http://www.daum.net/" class="link_error">메인화면</a>
+			<a href="http://cs.daum.net/" class="link_error ">고객센터</a>
+		</div>
+	</div>
+	<hr class="hide">
+	<div id="kakaoFoot" class="foot_error" role="contentinfo">
+		<small class="info_copyright">Copyright &copy; <a href="http://www.kakaocorp.com/" target="_blank" class="link_kakao">Jiwon Corp.</a> All rights reserved.</small>
+	</div>
+</div>
+<script type="text/javascript">
+//<![CDATA[
+function init() {
+	var inpSearch = document.getElementById('inpSearch');
+	var searchLabel = document.getElementById('searchLabel');
+	if(inpSearch) {
+		inpSearch.onfocus = function() {
+			searchLabel.className = 'screen_out';
+		}
+		inpSearch.onblur = function() {
+			if(inpSearch.value.length==0){
+				searchLabel.className = 'lab_search';
+			}
+		}
+	}
+}
+init();
+//]]>
+</script>
+</body>
+</html>
+```
+
+#### web.xml
+```js
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="WebApp_ID" version="3.0">
+  <display-name>study</display-name>
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+    <welcome-file>index.htm</welcome-file>
+    <welcome-file>index.jsp</welcome-file>
+    <welcome-file>default.html</welcome-file>
+    <welcome-file>default.htm</welcome-file>
+    <welcome-file>default.jsp</welcome-file>
+  </welcome-file-list>
+  
+<!--   <context-param>
+  	<param-name>name</param-name>
+  	<param-value>한창희</param-value>
+  </context-param>
+  
+  <context-param>
+  	<param-name>hobby</param-name>
+  	<param-value>piano</param-value>
+  </context-param> -->
+  
+<!--   <servlet>
+  	<servlet-name>Mysum</servlet-name>
+  	<servlet-class>study.Mysum</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+  	<servlet-name>Mysum</servlet-name>
+  	<url-pattern>/04/*.do</url-pattern>
+  </servlet-mapping> -->
+   <!-- 에러 페이지  -->
+
+<!--  <error-page>
+ <error-code>404</error-code>
+ <location>/WEB-INF/err/error404.jsp</location>
+ </error-page>
+ -->
+ 
+
+
+<!--  <error-page>
+ <error-code>500</error-code>
+ <location>/WEB-INF/err/error500.jsp</location>
+ </error-page> -->
+
+
+<!--  <error-page>
+ <exception-type>java.lang.NullPointerException</exception-type>
+ <location>/WEB-INF/err/error500.jsp</location>
+ </error-page>
+ 
+
+  <error-page>
+ <exception-type>java.lang.ClassCastException</exception-type>
+ <location>/WEB-INF/err/error500.jsp</location>
+ </error-page>
+
+ 
+ <error-page>
+ <exception-type>java.lang.NumberFormatException</exception-type>
+ <location>/WEB-INF/err/error500.jsp</location>
+ </error-page>
+ 
+
+  <error-page>
+ <exception-type>java.lang.IndexOutOfBoundsException</exception-type>
+ <location>/WEB-INF/err/error500.jsp</location>
+ </error-page> -->
+  
+  
+  
+</web-app>
+```
+
