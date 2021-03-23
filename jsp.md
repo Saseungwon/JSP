@@ -2502,3 +2502,128 @@ WAS가 실행되는 서버의 설정 정보 및 자원에 대한
 
 
 
+#### 01 input
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%request.setCharacterEncoding("utf-8"); %>
+<form action="01other.jsp" method="get">
+	<input type="text" name="tangType" value="aaaaa" >
+	<input type="text" name="girlGroup" value="abb">
+	<input type="submit">
+</form>
+
+</body>
+</html>
+```
+
+#### 01 others
+```js
+<%@page import="java.util.Map"%>
+<%@page import="java.util.HashMap"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%
+	String girlGroup = request.getParameter("girlGroup");
+	String tangType = request.getParameter("tangType");
+	String character ="";
+	
+	if(tangType.equals("bumeok")){
+		character="급하다";
+	}else if(tangType.equals("jjikmeok")){
+		character="섬세하다";
+	}else{ //cheomeok
+		character="그냥 돼지";
+	}
+	Map<String,String> typeCharacter = new HashMap<String, String>();
+	typeCharacter.put(tangType, character);
+	request.setAttribute("typeCharacter", typeCharacter);
+%>
+걸그룹 : <%=girlGroup %> <br>
+<jsp:include page="01otherinclude.jsp">
+	<jsp:param value="<%=character %>" name="character"/>
+	<jsp:param value="<%=tangType %>" name="tangType"/>
+</jsp:include>
+include 페이지에서 담은 값<%=request.getAttribute("") %>
+
+</body>
+</html>
+```
+
+## 📚 5일차
+#### 01 otherinclude
+```js
+<%@page import="java.util.Map"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<!-- jsp파람에서 썻던 character를 파라미터로 받고
+setAttribute했던 typeCharater를 getAttribute로 받아서 사용가능 -->
+<%
+	String character = request.getParameter("character");
+	String tangType = request.getParameter("tangType");
+	Map typeCharacter = (Map<String,String>)request.getAttribute("typeCharacter");
+%>
+include에서 character 사용 : <%=character %> <br>
+include에서 Map 객체 사용 : <%=typeCharacter.get(tangType) %>
+<%
+	request.setAttribute("include", "include에서 담은 내용");
+%>
+</body>
+</html>
+```
+
+#### 02 include
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<%="포함 전" %> <br>
+<%
+	String a="asd";
+%>
+<%@ include file="02included.jsp" %> <br>
+<%="포함 후" %>
+
+</body>
+</html>
+```
+
+#### 02 included
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<input type="text" name="not" value="">  <br>
+02included.jsp 내용
+
+<%
+	String a="";
+%>
+```
