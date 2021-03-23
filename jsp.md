@@ -2048,3 +2048,457 @@ init();
 </web-app>
 ```
 
+## 📚 복습 정리
+
+#### 00form
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<form action="00result.jsp" method="post">
+		사람<input type="text" name="person" value="">
+		나이<input type="text" name="age" value="">  
+		<input type="submit">
+	</form>
+	
+	<img alt="이미지가 없습니다" src="/study/resource/images/cat1.jpeg" width="100" height="100">
+	<img alt="이미지가 없습니다" src="<%=request.getContextPath()%>/resource/images/cat1.jpeg" width="100" height="100">
+	
+
+</body>
+</html>
+```
+
+#### 00result
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%request.setCharacterEncoding("utf-8"); %>
+	
+ip				: <%= request.getRemoteAddr() %> <br>
+uri				: <%= request.getRequestURI() %> <br>
+url				: <%= request.getRequestURL() %> <br>
+
+브라우져			: <%= request.getHeader("User-Agent") %> <br>
+페이지			: <%= request.getHeader("Referer") %> <br>	
+
+파라미터 정보
+person			: <%= request.getParameter("person") %> <br>
+age				: <%= request.getHeader("age") %> <br>
+
+</body>
+</html>
+```
+
+#### 01redirect
+```js
+<%@page import="java.net.URLEncoder"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<%
+	String name = "김소민";
+	String encodeName=URLEncoder.encode(name);
+	
+	response.sendRedirect("01redirectPage.jsp?name=" + encodeName);
+%>
+
+</body>
+</html>
+```
+
+#### 01redirectPage
+```js
+<%@page import="java.net.URLEncoder"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<%
+	String name = "김소민";
+	String encodeName=URLEncoder.encode(name);
+	out.print(encodeName);
+%>
+
+
+<%=request.getParameter("name") %> <br>
+
+</body>
+</html>
+```
+
+#### 02form
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+	<form action="02result.jsp" method="post">
+		<input type="text" name="한글">
+		<input type="text" name="eng">
+		<button type="submit">한글영어 인코딩</button>
+	</form>
+
+</body>
+</html>
+```
+
+#### 02result
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    <%request.setCharacterEncoding("utf-8"); %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+한글 <%=request.getParameter("한글") %> <br>
+eng <%=request.getParameter("eng") %> <br>
+
+
+
+</body>
+</html>
+```
+
+#### 03table
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style type="text/css">
+	table{
+		display: inline-block;
+		border: 1px solid blue;
+	}
+</style>
+<title>Insert title here</title>
+</head>
+<body>
+<table border="1">
+<thead>
+<%!
+	StringBuffer sb = new StringBuffer();
+	public String gugu(){
+		for(int i=2; i<=9; i++){
+			sb.append("<td>"+i+"단</td>");
+		}
+		
+		sb.append("<thead>");
+		sb.append("<tr>");
+		for(int i=1; i<=9; i++){
+			for(int j=2; j<=9; j++){
+				sb.append("<td>"+j+"x"+i+"="+(j*i)+"</td>");
+			}sb.append("</tr>");
+		}
+		return sb.toString(); 
+	}
+%>
+<%=gugu() %>
+</table>
+
+</body>
+</html>
+```
+
+#### 04sameName
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<form action="04sameNameResult.jsp" method="post">
+	1등<input type="text" name="a"> <br>
+	결석자<input type="text" name="b"> <br>
+	지각자: 사승1 <input type="checkbox" name="c" value="사승1">
+		 	사승2 <input type="checkbox" name="c" value="사승2">
+		 	사승3 <input type="checkbox" name="c" value="사승3">
+		 	<!--  value="" 안 쓰면 on으로 나옴 -->
+	<input type="submit" value="제출">
+</form>
+
+</body>
+</html>
+```
+
+#### 04sameNameResult
+```js
+<%@page import="java.util.Map"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%request.setCharacterEncoding("utf-8"); %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<form action="04sameNameResult.jsp">
+1등 : <%=request.getParameter("a") %> <br>
+결석자 : <%=request.getParameter("b") %> <br>
+취미 : 
+<%
+
+	Map parameters = request.getParameterMap();
+	String[] lates=(String[])parameters.get("c"); 
+	if(lates !=null){
+		for(String late:lates){
+			out.print(late+ "    ");
+		}
+	} 
+	
+/* 	이런 식으로도 가능
+	Map pMap = request.getParameterMap();
+	String[] names2 = (String[])pMap.get("name"); */
+%> 
+
+
+</form>
+
+
+</body>
+</html>
+```
+
+#### 05buffer
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    <%@page buffer="8kb" autoFlush="true" %>
+    
+    <%request.setCharacterEncoding("utf-8"); %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+버퍼사이즈			:<%=out.getBufferSize() %> <br>
+남은버퍼				:<%=out.getRemaining() %> <br>
+자동플러시여부		:<%=out.isAutoFlush() %> <br>
+
+<!-- flush, clear, clearbuffer -->
+<%
+	for(int i=0; i<1000; i++){
+		out.print("버퍼는?");
+		if(i==1000){
+			out.flush();
+			out.clear();
+		}
+	}
+%> <br>
+남은버퍼				:<%=out.getRemaining() %> <br>
+</body>
+</html>
+```
+
+#### 06basicObject
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+JSP 페이지에서 다른 내장객체를 얻거나
+하나의 페이지에서 다른 페이지로 제어권 등을
+넘겨줄 때 사용하는 내장 변수는 무엇인가
+- 페이지컨텍스트 객체
+<br>
+<% 
+	HttpServletRequest pageRequest = (HttpServletRequest)pageContext.getRequest();
+	out.print(pageRequest==request);
+%> <br>
+
+
+
+WAS에서 공유하는 객체
+WAS의 설정 정보를 갖는 context와 관련이 없음
+WAS가 실행되는 서버의 설정 정보 및 자원에 대한 
+정보를 얻어내거나 실행되고 있는 동안에 발생할 수 있는
+이벤트 로그 정보와 관련된 기능들을 제공하는 객체는? 
+- 어플리케이션 객체 
+<%
+	application.setAttribute("name", "사승원");
+	application.setAttribute("like", "pizza");
+%>
+
+</body>
+</html>
+```
+
+#### 06share
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%=application.getAttribute("name") %>
+<%=application.getAttribute("like") %>
+</body>
+</html>
+```
+
+#### 07readFile
+```js
+<%@page import="java.io.InputStreamReader"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%
+	String filePath="/resource/message/06notice.txt";
+	out.print("실제 파일 위치 : " + application.getRealPath(filePath)+ "<br>");
+	
+	char[] buff=new char[128]; 
+	int len=-1; 
+	try(InputStreamReader br = new InputStreamReader(
+			application.getResourceAsStream(filePath), "utf-8")){
+			while((len=br.read(buff))!=-1){
+				out.print(new String(buff, 0, len));
+			}
+		}
+%>
+
+</body>
+</html>
+```
+
+#### 08error
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8" isErrorPage="true" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+에러페이지입니다.
+
+</body>
+</html>
+```
+
+#### 08form
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+500은 코드별, bound가 type별
+
+100 : 해당 요청을 진행중 
+200 : 요청을 정상적으로 처리 했음 
+300 : 요청의 정보가 변경되었음 
+400 : 잘못된 요청(404, 401, 403) 
+500 : 내부 서버 오류(서버 프로그램의 오류) 
+
+<form action="08my.jsp" method="post">
+	라면 <input type="text" name="ramen" value="">
+	<input type="submit" value="라면">
+</form>
+
+</body>
+</html>
+```
+
+#### 08my
+```js
+<%@page import="java.io.IOException"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"  errorPage="08error.jsp"%>
+<%request.setCharacterEncoding("utf-8"); %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%
+	String ramen = request.getParameter("ramen"); 
+	if(ramen.equals("츠케멘")){
+		throw new NullPointerException(); 
+	}
+	if(ramen.equals("된장라면")){
+		throw new ClassCastException(); 
+	}
+	if(ramen.equals("소금라면")){
+		throw new IOException(); 
+	}
+%>
+기타 라면 : <%=ramen %> 
+</body>
+</html>
+```
+
+
+
