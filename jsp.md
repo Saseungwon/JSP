@@ -2627,3 +2627,811 @@ include에서 Map 객체 사용 : <%=typeCharacter.get(tangType) %>
 	String a="";
 %>
 ```
+
+## 📚 6일차
+#### path1 - 02viewcookie
+```js
+<%@ page contentType="text/html; charset=UTF-8"%>
+<%@ page import = "java.net.URLEncoder"%>
+<!DOCTYPE html>
+<html>
+<head><title>Insert title here</title></head>
+<body>
+<%
+	Cookie cookie = new Cookie("han","null");
+	response.addCookie(cookie);
+	
+	Cookie cookiePath1 = new Cookie("path1","/study/08/path1");
+	cookiePath1.setPath("/study/08/path1");
+	response.addCookie(cookiePath1);
+
+	Cookie cookiePath2 = new Cookie("path2","/study/08/path2");
+	cookiePath1.setPath("/study/08/path2");
+	response.addCookie(cookiePath2);
+	
+	Cookie cookieAbsolute = new Cookie("absolute","/");
+	cookieAbsolute.setPath("/");
+	response.addCookie(cookieAbsolute);
+%>
+</body>
+</html>
+```
+
+#### path2 – 02viewcookie
+```js
+<%@page import="java.net.URLDecoder"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+02viewCookie.jsp
+
+<%
+	Cookie[] cookies = request.getCookies();
+	if(cookies!=null){
+		for(Cookie cookie : cookies){
+			if(cookie.getName().equals("han")){
+				out.print(cookie.getName()+ " : " + URLDecoder.decode(cookie.getValue()) + "<br>");
+				continue;
+			}
+			out.print(cookie.getName()+ " : " + cookie.getValue()+ "<br>");
+			
+		}
+	}
+%>
+
+</body>
+</html>
+```
+
+#### 00basicBean
+```js
+<%@page import="com.study.member.vo.MemberVO"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+
+<jsp:useBean id="member" class="com.study.member.vo.MemberVO" scope="request"></jsp:useBean>
+
+<jsp:getProperty property="memId" name="member"/>
+<jsp:getProperty property="memPass" name="member"/>
+<jsp:getProperty property="memDelYn" name="member"/>
+
+<%-- <jsp:setProperty property="memId" name="member" param="memId"/>
+<jsp:setProperty property="memId" name="member" value='<%=request.getParameter("memId") %>'/>
+<jsp:setProperty property="memPass" name="member" value="memPass"/>
+<jsp:setProperty property="memDelYn" name="member" value="Y"/> --%>
+
+<!-- 하나하나 다 써주지 않아도 property="*"를 쓰면 jsp:getProperty에서 넣은 값을 자동으로 넣어줌 -->
+<jsp:setProperty property="*" name="member"/>
+
+
+<br>
+<jsp:getProperty property="memId" name="member"/>
+<jsp:getProperty property="memPass" name="member"/>
+<jsp:getProperty property="memName" name="member"/>
+<jsp:getProperty property="memBir" name="member"/>
+<jsp:getProperty property="memZip" name="member"/>
+<jsp:getProperty property="memAdd1" name="member"/>
+<jsp:getProperty property="memAdd2" name="member"/>
+<jsp:getProperty property="memHp" name="member"/>
+<jsp:getProperty property="memMail" name="member"/>
+<jsp:getProperty property="memJob" name="member"/>
+<jsp:getProperty property="memLike" name="member"/>
+<jsp:getProperty property="memMileage" name="member"/>
+<jsp:getProperty property="memDelYn" name="member"/>
+
+<jsp:forward page="00usejavaBean.jsp"></jsp:forward>
+
+<%-- <%
+	request.setAttribute("member", member);
+%>
+<br>
+<%
+	MemberVO member2=(MemberVO)request.getAttribute("member");
+	out.print(member2==member);
+%> --%>
+<%-- <%
+	MemberVO member=(MemberVO)request.getAttribute("member");
+	if(member !=null){
+		member=new MemberVO();
+		request.setAttribute("member", member);
+	}
+%> --%>
+
+
+
+</body>
+</html>
+```
+
+#### 00form
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+<form action="00basicBean.jsp" method="post">
+	memId <input type="text" name="memId"> <br>
+	memPass <input type="password" name="memPass"> <br>
+	memName <input type="text" name="memName"> <br>
+	memBir <input type="text" name="memBir"> <br>
+	memZip <input type="text" name="memZip"> <br>
+	memAdd1 <input type="text" name="memAdd1"> <br>
+	memAdd2 <input type="text" name="memAdd2"> <br>
+	memHp <input type="text" name="memHp"> <br>
+	memMail <input type="text" name="memMail"> <br>
+	memJob <input type="text" name="memJob"> <br>
+	memLike <input type="text" name="memLike"> <br>
+	memMileage <input type="text" name="memMileage"> <br>
+	memDelYn <input type="text" name="memDelYn"> <br>
+	
+	<input type="submit" name="memPass">
+</form>
+</body>
+</html>
+```
+
+#### 00usejavaBean
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+
+	<jsp:useBean id="member" class="com.study.member.vo.MemberVO" scope="request"></jsp:useBean>
+	
+	<hr>
+	<jsp:getProperty property="memId" name="member"/>
+	<jsp:getProperty property="memPass" name="member"/>
+	<jsp:getProperty property="memDelYn" name="member"/>
+	<hr>
+	
+	<%
+		out.print(member.getMemId());
+		out.print(member.getMemPass());
+		out.print(member.getMemDelYn());
+		member.setMemId("바뀐거");
+	%>
+
+</body>
+</html>
+```
+
+#### 02deleteCookie
+```js
+<%@ page contentType="text/html; charset=UTF-8"%>
+<%@ page import="java.net.URLEncoder"%>
+
+
+<html>
+<head>
+<title>쿠키 삭제</title>
+</head>
+<body>
+쿠키 delete 메소드가 따로 없고
+setMaxAge() 라는 메소드를 사용
+
+<%
+	Cookie[] cookies = request.getCookies();
+	if(cookies!=null){
+		for(Cookie cookie : cookies){
+			if(cookie.getName().equals("ssw")){
+				cookie.setMaxAge(0); // 0으로 지정하면 쿠키 삭제됨
+				response.addCookie(cookie);
+			}
+		}
+	}
+%>
+
+</body>
+</html>
+```
+
+#### 02makeCookie
+```js
+<%@page import="java.net.URLEncoder"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+<%
+	Cookie cookie = new Cookie("han",URLEncoder.encode("사승원","utf-8"));
+	
+	response.addCookie(cookie);
+%>
+
+</body>
+</html>
+```
+
+#### 02modifyCookie
+```js
+<%@ page contentType="text/html; charset=UTF-8"%>
+<%@ page import="java.net.URLEncoder"%>
+
+쿠키 변경은 따로 없고 같은 이름의 쿠키를 만들면 기존것은 삭제, 새로운 것으로 대체
+
+<html>
+<head>
+<title>값 변경</title>
+</head>
+<body>
+<%
+	//이름이 han인 쿠키가 있는지 없는지 검사해서
+	//없으면 아무것도 안 하고 있으면 그 쿠키의 값을 바꿔보세요
+	Cookie[] cookies = request.getCookies();
+		for(Cookie cookie : cookies){
+			if(cookie.getName().equals("han")){
+				
+			
+				
+/* 		 	값 변경..
+			Cookie cookie1 = new Cookie("han", "change");
+			response.addCookie(cookie); */
+		}
+	}
+%>
+
+
+</body>
+</html>
+```
+
+#### 02viewcookie
+```js
+<%@page import="java.net.URLDecoder"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+02viewCookie.jsp
+
+<%
+	Cookie[] cookies = request.getCookies();
+	if(cookies!=null){
+		for(Cookie cookie : cookies){
+			if(cookie.getName().equals("han")){
+				out.print(cookie.getName()+ " : " + URLDecoder.decode(cookie.getValue()) + "<br>");
+				continue;
+			}
+			out.print(cookie.getName()+ " : " + cookie.getValue()+ "<br>");
+			
+		}
+	}
+%>
+
+<%
+
+//쿠키는 기본적으로 브라우져를 끄면 사라진다.
+	if(cookies!=null){
+	for(Cookie cookie: cookies){
+		if(cookie.getName().equals("han")){
+			%>
+			<%=cookie.getName() %> <br>
+			<%=cookie.getValue() %> <br>
+			<%=cookie.getPath() %> <br>
+			<%=cookie.getMaxAge() %> <br>
+			<%
+		}
+	}
+	}
+%>
+</body>
+</html>
+```
+
+#### 03check
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+</body>
+</html>
+```
+
+#### 03cookieAge
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%
+	Cookie cookie = new Cookie("ssw","1st");
+	//cookie.setMaxAge(15);
+	cookie.setMaxAge(60*60+1);
+	response.addCookie(cookie);
+%>
+</body>
+</html>
+```
+
+#### 04cookiePath
+```js
+<%@ page contentType="text/html; charset=UTF-8"%>
+<%@ page import = "java.net.URLEncoder"%>
+<!DOCTYPE html>
+<html>
+<head><title>Insert title here</title></head>
+<body>
+<%
+	Cookie cookie = new Cookie("han","null");
+	response.addCookie(cookie);
+	
+	Cookie cookiePath1 = new Cookie("path1","/study/08/path1");
+	cookiePath1.setPath("/study/08/path1");
+	response.addCookie(cookiePath1);
+
+	Cookie cookiePath2 = new Cookie("path2","/study/08/path2");
+	cookiePath1.setPath("/study/08/path2");
+	response.addCookie(cookiePath2);
+	
+	Cookie cookieAbsolute = new Cookie("absolute","/");
+	cookieAbsolute.setPath("/");
+	response.addCookie(cookieAbsolute);
+%>
+</body>
+</html>
+```
+
+#### 08.txt
+```js
+HTTP : 비연결성, 무상태
+
+쿠키
+쿠키라는 것을 만들어서 브라우져가 저장을 합니다
+브라우저 측에서 뭔가를 할 수 있다.
+ex : 아이디 저장, 공지사항 오늘 하루 안 보기
+	  조회수 증가 방지
+	  
+브라우져 ------->  서버
+		 (쿠키)
+보안관련된 내용은 쿠키에 저장하지 않는다.
+아이디, 비밀번호, 그 외 개인정보
+
+보안 관련된 것은 session을 통해서
+```
+
+
+## 📚제공
+
+#### 01memberForm
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<%@ include file="/WEB-INF/inc/header.jsp" %>
+	<title>01memberForm.jsp </title>
+</head>
+<body>
+<%@ include file="/WEB-INF/inc/top.jsp" %>
+ <div class="container">	
+	<h3>회원가입</h3>		
+	<form action="01memberRegist.jsp" method="post" >
+	<table class="table table-striped table-bordered">
+		<tbody>
+			<tr>
+				<th>아이디</th>
+				<td>
+					<div class="col-xs-5">
+    					<input type="text" name="memId" class="form-control" placeholder="아이디를 입력하세요">
+ 					</div>
+  				</td>
+			</tr>
+			<tr>
+				<th>비밀번호</th>
+				<td><input type="password" name="memPass" class="form-control input-sm" ></td>
+			</tr>	
+			<tr>
+				<th>회원명</th>
+				<td><input type="text" name="memName" class="form-control input-sm" ></td>
+			</tr>
+			<tr>
+				<th>생일</th>
+				<td><input type="date" name="memBir" class="form-control input-sm" ></td>
+			</tr>
+			<tr>
+				<th>핸드폰</th>
+				<td><input type="tel" name="memHp" class="form-control input-sm" ></td>
+			</tr>
+			<tr>
+				<th>직업</th>
+				<td>
+					<select name="memJob" class="form-control input-sm" >
+						<option value="">-- 직업 선택 --</option>
+						<option value="JB01">주부</option>
+						<option value="JB02">은행원</option>
+						<option value="JB03">공무원</option>
+						<option value="JB04">축산업</option>
+						<option value="JB05">회사원</option>
+						<option value="JB06">농업</option>
+						<option value="JB07">자영업</option>
+						<option value="JB08">학생</option>
+						<option value="JB09">교사</option>					
+					</select>				
+				</td>
+			</tr>
+			<tr>
+				<th>취미</th>
+				<td>
+					<select name="memLike" class="form-control input-sm" >
+						<option value="">-- 취미 선택 --</option>
+						<option value="HB01">서예</option>
+						<option value="HB02">장기</option>
+						<option value="HB03">수영</option>
+						<option value="HB04">독서</option>
+						<option value="HB05">당구</option>
+						<option value="HB06">바둑</option>
+						<option value="HB07">볼링</option>
+						<option value="HB08">스키</option>
+						<option value="HB09">만화</option>
+						<option value="HB10">낚시</option>
+						<option value="HB11">영화감상</option>
+						<option value="HB12">등산</option>
+						<option value="HB13">개그</option>
+						<option value="HB14">카레이싱</option>					
+					</select>				
+				</td>
+			</tr>			
+			<tr>
+				<td colspan="4">
+				
+					<button type="submit" class="btn btn-primary">
+					<span class="glyphicon glyphicon-home" aria-hidden="true"></span>
+					&nbsp;회원가입
+					
+					<button type="submit" class="btn btn-primary">
+					<span class="glyphicon glyphicon-home" aria-hidden="true"></span>
+					&nbsp;회원가입
+					
+					</button>
+					<a href="#" class="btn btn-info btn-sm">
+					<span class="glyphicon glyphicon-credit-card" aria-hidden="true"></span>
+					&nbsp;결제
+					</a>
+					
+					</button>
+					<a href="#" class="btn btn-info btn-sm">
+					<span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>
+					&nbsp;다운로드
+					</a>
+				</td>
+			</tr>
+			
+			
+			
+			
+			
+			
+			
+		</tbody>	
+	</table>
+	</form>
+</div>
+
+</body>
+</html>
+```
+
+#### 01memberRegist
+```js
+<%@page import="javafx.beans.property.SetProperty"%>
+<%@page import="com.study.member.vo.MemberVO"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+
+<h4> request.getparameter 직접출력 </h4>
+
+<%=request.getParameter("memId") %>
+<%=request.getParameter("memPass") %>
+<%=request.getParameter("memName") %>
+<%=request.getParameter("memBir") %>
+	
+
+<hr>
+<h4><% %> 안에서 MemberVO만들고 setMemId하고 out.print(member.getMemId)</h4>
+<%
+	MemberVO member = new MemberVO();
+	member.setMemId(request.getParameter("memId"));
+	member.setMemId(request.getParameter("memPass"));
+	member.setMemId(request.getParameter("memName"));
+	member.setMemId(request.getParameter("memBir"));
+	out.print(member.getMemId());
+	out.print(member.getMemPass());
+	out.print(member.getMemName());
+	out.print(member.getMemBir());
+	
+	
+%>
+
+<h4>useBean 사용해서 출력</h4>
+	<jsp:useBean id="member2" class="com.study.member.vo.MemberVO" scope="request"></jsp:useBean>
+	<jsp:setProperty property="*" name="member2"/>
+
+	<jsp:getProperty property="memId" name="member2"/>
+	<jsp:getProperty property="memPass" name="member2"/>
+	<jsp:getProperty property="memName" name="member2"/>
+	<jsp:getProperty property="memBir" name="member2"/>
+</body>
+</html>
+```
+
+#### login
+```js
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%
+	request.setCharacterEncoding("UTF-8");
+%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<%@include file="/WEB-INF/inc/header.jsp"%>
+<title>Insert title here</title>
+</head>
+<body>
+	
+	
+	<%@include file="/WEB-INF/inc/top.jsp"%>
+	<div class="container">
+		<form action="06loginCheck.jsp" class="loginForm">
+			<h2>로그인</h2>
+
+
+			<table class="table table-bordered">
+				<tbody>
+					<tr>
+						<th>아이디</th>
+						<td><input type="text" name="userId"
+							class="form-control input-sm" value=""></td>
+					</tr>
+					<tr>
+						<th>비밀번호</th>
+						<td><input type="password" name="userPass"
+							class="form-control input-sm"></td>
+					</tr>
+					<tr>
+						<td colspan="2"><label><input type="checkbox"
+								name="rememberMe" value="Y" >ID 기억하기</label></td>
+					</tr>
+					<tr>
+						<td colspan="2">
+							<button type="submit" class="btn btn-primary btn-sm pull-right">로그인</button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</form>
+	</div>
+	<!-- container -->
+	
+</body>
+</html>
+
+```
+
+#### UserList.java
+```js
+package com.study.common.util;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.study.login.vo.UserVO;
+
+public class UserList {
+	private Map<String, UserVO> usersMap = null;
+
+	public UserList() {
+		UserVO user = null;
+		usersMap = new HashMap<String, UserVO>();
+		user = new UserVO("malja", "말자", "1004", "ADMIN");
+		usersMap.put(user.getUserId(), user);
+		user = new UserVO("sunja", "순자", "1111", "USER");
+		usersMap.put(user.getUserId(), user);
+		user = new UserVO("nolja", "야놀자", "1004", "USER");
+		usersMap.put(user.getUserId(), user);
+		user = new UserVO("milkis", "밀키스", "1004", "MANAGER");
+		usersMap.put(user.getUserId(), user);
+		user = new UserVO("areum", "아름", "0000", "MANAGER");
+		usersMap.put(user.getUserId(), user);
+	}
+
+	public UserVO getUser(String id) {
+		System.out.println("UserList getUser id=" + id);
+		if (usersMap.containsKey(id)) {
+			System.out.println("[" + id + "] 회원 존재");
+			return usersMap.get(id);
+		} else {
+			System.out.println("[" + id + "] 회원이 존재하지 않음");
+			return null;
+		}
+	}
+
+	public List<UserVO> getUserList() {
+		return new ArrayList<UserVO>(usersMap.values());
+	}
+	
+	public Map<String, UserVO> getUsersMap() {
+		return usersMap;
+	}
+	
+} // class
+```
+
+#### userVO.java
+```js
+package com.study.login.vo;
+
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
+
+public class UserVO {
+	private String userId;
+	private String userName;
+	private String userPass;
+	private String userRole;
+	
+	// toString() 구현
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
+	}
+	// 생성자
+	public UserVO() {
+		
+	}
+	
+	// 생성자
+	public UserVO(String userId, String userName, String userPass, String userRole) {
+	this.userId = userId;
+	this.userName = userName;
+	this.userPass = userPass;
+	this.userRole = userRole;
+	}
+
+	
+	// 맴버필드의 get/set 메서드 생성
+
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public String getUserPass() {
+		return userPass;
+	}
+
+	public void setUserPass(String userPass) {
+		this.userPass = userPass;
+	}
+
+	public String getUserRole() {
+		return userRole;
+	}
+
+	public void setUserRole(String userRole) {
+		this.userRole = userRole;
+	}
+	
+	
+	
+}
+
+```
+
+
