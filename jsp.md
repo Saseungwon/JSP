@@ -3435,3 +3435,765 @@ public class UserVO {
 ```
 
 
+
+
+## 📚 7일차 
+
+#### 01 login
+```js
+
+<%@page import="com.study.common.util.CookieUtils"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%
+	request.setCharacterEncoding("UTF-8");
+%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<%@include file="/WEB-INF/inc/header.jsp"%>
+<title>Insert title here</title>
+</head>
+<body>
+	<%@include file="/WEB-INF/inc/top.jsp"%>
+<!--
+01login
+01loginCheck 입력한 값을 받아서 userList의 데이터들이랑 비교해서
+				id,pw 둘 중 하나도 값이 없으면
+				"id,pw를 입력해주세요"
+				id는 맞지만 pw는 다른 경우
+				"id또는 pw를 확인해주세요"
+				id pw 가 같으면 로그인 되었습니다.
+01logout 		로그아웃
+-->
+<%
+	CookieUtils cookieUtils=new CookieUtils(request);
+
+	if(cookieUtils.exists("AUTH")){
+		
+	
+%>
+로그인 되었습니다
+<a href="01logout.jsp" class="btn btn-defualt">로그아웃</a>
+<%
+	}else{
+		String msg=request.getParameter("msg");
+		if(msg!=null){
+			out.print(msg);
+		}
+%>
+	
+	
+	<div class="container">
+	<%} %>
+		<form action="01loginCheck.jsp" class="loginForm">
+			<h2>로그인</h2>
+
+
+			<table class="table table-bordered">
+				<tbody>
+					<tr>
+						<th>아이디</th>
+						<td><input type="text" name="userId"
+							class="form-control input-sm" value=""></td>
+					</tr>
+					<tr>
+						<th>비밀번호</th>
+						<td><input type="password" name="userPass"
+							class="form-control input-sm"></td>
+					</tr>
+					<tr>
+						<td colspan="2"><label><input type="checkbox"
+								name="rememberMe" value="Y" >ID 기억하기</label></td>
+					</tr>
+					<tr>
+						<td colspan="2">
+							<button type="submit" class="btn btn-primary btn-sm pull-right">로그인</button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</form>
+	</div> <% %>
+	<!-- container -->
+	
+</body>
+</html>
+
+```
+
+#### 01 logincheck
+
+```js
+<%@page import="com.study.common.util.CookieUtils"%>
+<%@page import="com.study.login.vo.UserVO"%>
+<%@page import="com.study.common.util.UserList"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+		
+
+<!-- 	
+	//id가 없으면 아이디나 비밀번호 확인해주세요
+	//pw가 없어도 아이디나 비밀번호를 확인해주세요
+	//jsp:param name=msg, value="아이디나"
+	//id pw 둘다 맞다면 cookie 만들어서
+	//response, redirect login.jsp
+-->
+		
+<%
+	UserList userList=new UserList();
+	String id = request.getParameter("userId");
+	String pw = request.getParameter("userPass");
+	
+	//id pw가 null이면 jsp:foward 써서 login.jsp로
+	
+	//id pw는 내가 입력한 값
+	UserVO user=userList.getUser(id);
+	
+	if((id==null || id.isEmpty()) || (pw==null || pw.isEmpty())){
+		pageContext.forward("01login.jsp?msg=아이디나 비밀번호를 입력해주세요");//jsp forward와 똑같은 기능
+	}
+	if(user==null){
+		pageContext.forward("01login.jsp?msg=아아디 또는 비밀번호를 확인해주세요");//jsp forward와 똑같은 기능
+	}
+	else if(user!=null){ //아이디는 잘 입력한 것
+		if(pw.equals(user.getUserPass()));
+			 //id,pw 다 맞는 경우
+			 response.addCookie(CookieUtils.createCookie("AUTH", id)); //쿠키 생성
+			 response.sendRedirect("01login.jsp");
+		}else {
+			//id는 맞았지만 비밀번호 틀린경우
+			pageContext.forward("01login.jsp?msg=아아디 또는 비밀번호를 확인해주세요");//jsp forward와 똑같은 기능
+		}
+
+%>
+</body>
+</html>
+```
+
+#### 01 logout
+
+```js
+<%@page import="com.study.common.util.CookieUtils"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+
+<%
+	Cookie cookie = CookieUtils.createCookie("AUTH", "a","/",0);
+	response.addCookie(cookie);// 0: 쿠키 삭제
+	response.sendRedirect("01login.jsp?msg=로그아웃 되었습니다.");// 쿠키삭제한 상태로 첫 페이지로 가니까 로그아웃됨
+%>
+</body>
+</html>
+```
+
+#### 00 cookieUtilCreate
+
+```js
+
+```
+
+#### src – com.study.common.util – CookieUtil.java
+
+```js
+package com.study.common.util;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+
+public class CookieUtils {
+	
+	private Map<String,Cookie> cookieMap=new HashMap<String, Cookie>();
+	
+	public CookieUtils(HttpServletRequest request) { //생성될 때 그 request의 모든 쿠키가 cookieMap에 담김
+		Cookie[] cookies=request.getCookies();
+		if(cookies!=null) {
+			for(Cookie cookie : cookies) {
+				cookieMap.put(cookie.getName(), cookie);
+			}
+		}
+	}
+	
+	public boolean exists(String name) {
+		return cookieMap.get(name)!=null;
+	}
+	
+	public Cookie getCookie(String name) {
+		return cookieMap.get(name);
+	}  //null을 return할 수도 있는데 이때 검사를 직접하는것보단 exists를 이용해서...
+	
+	public String getValue(String name) throws IOException{
+		Cookie cookie=cookieMap.get(name);
+		if(cookie==null) return null;
+		return URLDecoder.decode(cookie.getValue(),"utf-8");
+	}
+	
+	public static Cookie createCookie(String name, String value) throws IOException {
+		return createCookie(name, value, "", "/", -1);
+	}
+	
+	public static Cookie createCookie(String name, String value, String path, int maxAge) throws IOException {
+		return createCookie(name, value, "", path, maxAge);
+	}
+	
+	public static Cookie createCookie(String name, String value, String domain, String path, int maxAge) throws IOException {
+		Cookie cookie = new Cookie(name, URLEncoder.encode(value, "utf-8"));
+		cookie.setDomain(domain);
+		cookie.setPath(path);
+		cookie.setMaxAge(maxAge);
+		return cookie;
+	}
+	
+}
+```
+
+#### src – com.study.common.util – UserList.java
+
+```js
+package com.study.common.util;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.study.login.vo.UserVO;
+
+public class UserList {
+	private Map<String, UserVO> usersMap = null;
+
+	public UserList() {
+		UserVO user = null;
+		usersMap = new HashMap<String, UserVO>();
+		user = new UserVO("malja", "말자", "1004", "ADMIN");
+		usersMap.put(user.getUserId(), user);
+		user = new UserVO("sunja", "순자", "1111", "USER");
+		usersMap.put(user.getUserId(), user);
+		user = new UserVO("nolja", "야놀자", "1004", "USER");
+		usersMap.put(user.getUserId(), user);
+		user = new UserVO("milkis", "밀키스", "1004", "MANAGER");
+		usersMap.put(user.getUserId(), user);
+		user = new UserVO("areum", "아름", "0000", "MANAGER");
+		usersMap.put(user.getUserId(), user);
+	}
+
+	public UserVO getUser(String id) {
+		System.out.println("UserList getUser id=" + id);
+		if (usersMap.containsKey(id)) {
+			System.out.println("[" + id + "] 회원 존재");
+			return usersMap.get(id);
+		} else {
+			System.out.println("[" + id + "] 회원이 존재하지 않음");
+			return null;
+		}
+	}
+
+	public List<UserVO> getUserList() {
+		return new ArrayList<UserVO>(usersMap.values());
+	}
+	
+	public Map<String, UserVO> getUsersMap() {
+		return usersMap;
+	}
+	
+} // class
+```
+
+#### src – com.study.login.vo – UserVo.java
+
+```js
+package com.study.login.vo;
+
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
+
+public class UserVO {
+	private String userId;
+	private String userName;
+	private String userPass;
+	private String userRole;
+	
+	// toString() 구현
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
+	}
+	// 생성자
+	public UserVO() {
+		
+	}
+	
+	// 생성자
+	public UserVO(String userId, String userName, String userPass, String userRole) {
+	this.userId = userId;
+	this.userName = userName;
+	this.userPass = userPass;
+	this.userRole = userRole;
+	}
+
+	
+	// 맴버필드의 get/set 메서드 생성
+
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public String getUserPass() {
+		return userPass;
+	}
+
+	public void setUserPass(String userPass) {
+		this.userPass = userPass;
+	}
+
+	public String getUserRole() {
+		return userRole;
+	}
+
+	public void setUserRole(String userRole) {
+		this.userRole = userRole;
+	}
+	
+	
+	
+}
+
+```
+
+
+#### src – com.study.member.vo – MemberVO.java
+
+```js
+package com.study.member.vo;
+
+public class MemberVO {
+	private String memId;         /* 회원 아이디 */
+	private String memPass;       /* 회원 비밀번호 */
+	private String memName;       /* 회원 이름 */
+	private String memBir;        /* 회원 생일 */
+	private String memZip;        /* 우편번호 */
+	private String memAdd1;       /* 주소 */
+	private String memAdd2;       /* 상세주소 */
+	private String memHp;         /* 연락처 */
+	private String memMail;       /* 이메일 */
+	private String memJob;        /* 직업 코드 */
+	private String memLike;       /* 취미 코드 */
+	private int memMileage;       /* 마일리지 */
+	private String memDelYn;     /* 탈퇴여부 */
+	
+	public String getMemDelYn() {
+		return memDelYn;
+	}
+	public void setMemDelYn(String memDelYn) {
+		this.memDelYn = memDelYn;
+	}
+	public String getMemId() {
+		return memId;
+	}
+	public void setMemId(String memId) {
+		this.memId = memId;
+	}
+	public String getMemPass() {
+		return memPass;
+	}
+	public void setMemPass(String memPass) {
+		this.memPass = memPass;
+	}
+	public String getMemName() {
+		return memName;
+	}
+	public void setMemName(String memName) {
+		this.memName = memName;
+	}
+	public String getMemBir() {
+		return memBir;
+	}
+	public void setMemBir(String memBir) {
+		this.memBir = memBir;
+	}
+	public String getMemZip() {
+		return memZip;
+	}
+	public void setMemZip(String memZip) {
+		this.memZip = memZip;
+	}
+	public String getMemAdd1() {
+		return memAdd1;
+	}
+	public void setMemAdd1(String memAdd1) {
+		this.memAdd1 = memAdd1;
+	}
+	public String getMemAdd2() {
+		return memAdd2;
+	}
+	public void setMemAdd2(String memAdd2) {
+		this.memAdd2 = memAdd2;
+	}
+	public String getMemHp() {
+		return memHp;
+	}
+	public void setMemHp(String memHp) {
+		this.memHp = memHp;
+	}
+	public String getMemMail() {
+		return memMail;
+	}
+	public void setMemMail(String memMail) {
+		this.memMail = memMail;
+	}
+	public String getMemJob() {
+		return memJob;
+	}
+	public void setMemJob(String memJob) {
+		this.memJob = memJob;
+	}
+	public String getMemLike() {
+		return memLike;
+	}
+	public void setMemLike(String memLike) {
+		this.memLike = memLike;
+	}
+	public int getMemMileage() {
+		return memMileage;
+	}
+	public void setMemMileage(int memMileage) {
+		this.memMileage = memMileage;
+	}
+
+
+}
+
+```
+
+
+## 📚 8일차
+
+##
+
+#### 02getSessionInfo
+```js
+<%@page import="com.study.login.vo.UserVO"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+
+<%=((UserVO)session.getAttribute("user")).toString() %> <br>
+<%=((UserVO)session.getAttribute("user1")).toString() %> <br>
+
+</body>
+</html>
+```
+
+#### 02 sessionInfo
+```js
+<%@page import="java.util.Date"%>
+<%@page import="java.text.SimpleDateFormat"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+
+session ID : <%=session.getId()%>
+시간<%=session.getCreationTime()  %>		<!-- 세션이 생성된 시간 -->
+
+<%
+	long time = session.getCreationTime();
+	long accessTime=session.getLastAccessedTime();
+	Date date = new Date();
+	Date date2 = new Date();
+	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	date.setTime(time);
+	date2.setTime(accessTime);
+	session.setMaxInactiveInterval(15);
+%> <br> <br> <br>
+생성시간 : <%=sdf.format(date) %> <br>
+접근시간 : <%=sdf.format(date2) %>
+
+</body>
+</html>
+```
+
+#### 02setSessionInfo
+```js
+<%@page import="com.study.login.vo.UserVO"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+<%
+	UserVO user1=new UserVO();
+	user1.setUserId("aaa");
+	UserVO user=new UserVO();
+	user1.setUserId("bbb");
+	
+	session.setAttribute("user", user);
+	session.setAttribute("user1", user1);
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+</body>
+</html>
+```
+
+#### 03login
+```js
+<%@page import="com.study.common.util.CookieUtils"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%
+	request.setCharacterEncoding("UTF-8");
+%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<%@include file="/WEB-INF/inc/header.jsp"%>
+<title>Insert title here</title>
+</head>
+<body>
+	<%@include file="/WEB-INF/inc/top.jsp"%>
+
+	<!-- 제공된 파일에 추가하는겁니다 -->
+
+	<!-- 문제 : AUTH라는 쿠키가 있으면 "로그인됨"  
+	없으면 로그인 폼 출력하기
+ -->
+
+	loginCheck : id기억하기 쿠키 :SAVE_ID, id
+
+	<%
+		String msg = request.getParameter("msg");
+	String id = "";
+	String checked = "";
+
+	if (msg != null) {
+		out.print(msg);
+	}
+	CookieUtils cookieUtils = new CookieUtils(request);
+
+	if (cookieUtils.exists("SAVE_ID")) {
+		id = cookieUtils.getValue("SAVE_ID");
+		checked = "checked='checked'";
+	}
+
+	if (cookieUtils.exists("AUTH")) {
+	%>
+	로그인 중
+	<a href="01logout.jsp" class="btn btn-success btn-sm">로그아웃</a>
+	<%
+		} else {
+	%>
+
+
+	<div class="container">
+		<form action="01loginCheck.jsp" class="loginForm">
+			<h2>로그인</h2>
+			<table class="table table-bordered">
+				<tbody>
+					<tr>
+						<th>아이디</th>
+						<td><input type="text" name="userId" class="form-control input-sm" value="<%=id%>"></td>
+					</tr>
+					<tr>
+						<th>비밀번호</th>
+						<td><input type="password" name="userPass" class="form-control input-sm"></td>
+					</tr>
+					<tr>
+						<td colspan="2"><label><input type="checkbox" name="rememberMe" value="Y" <%=checked %>>ID 기억하기</label></td>
+					</tr>
+					<tr>
+						<td colspan="2">
+							<button type="submit" class="btn btn-primary btn-sm pull-right">로그인</button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</form>
+	</div>
+	<!-- container -->
+	<%}%>
+</body>
+</html>
+```
+
+#### 03loginCheck
+```js
+<%@page import="com.study.common.util.CookieUtils"%>
+<%@page import="java.net.URLEncoder"%>
+<%@page import="com.study.login.vo.UserVO"%>
+<%@page import="com.study.common.util.UserList"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%
+	request.setCharacterEncoding("UTF-8");
+%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<title></title>
+</head>
+<body>
+<!-- <a href="#" class="btn btn-default" onclick="history.go(-1)">뒤로가기</a>
+아이디틀렸을때  -->
+
+
+1.아이디나 비밀번호 입력 안했을 때    forward.  msg:입력안했어요
+2.아이디가 userList에 없을 때          
+forward  msg:아이디 또는 비번확인
+
+3.아이디가 userList에 있고, pw도 맞았을 떄  redircet
+4.아이디가 userList에 있지만 pw가 틀렸을 때
+forward  msg:아이디 또는 비번확인
+<%
+	String id=request.getParameter("userId");
+	String pw=request.getParameter("userPass");
+	String save_id=request.getParameter("rememberMe");
+	if(save_id==null){
+		CookieUtils cookieUtils = new CookieUtils(request);
+		if(cookieUtils.exists("SAVE_ID")){
+			Cookie cookie= CookieUtils.createCookie("SAVE_ID", id, "/" ,0);
+			response.addCookie(cookie);
+		}
+		save_id="";
+	}
+	
+	if((id==null||id.isEmpty() )|| (pw==null||pw.isEmpty())){
+		pageContext.forward("01login.jsp?msg=입력안했어요");
+	}
+	
+	UserList userList=new UserList();
+	UserVO user=userList.getUser(id);
+	
+	if(user==null){
+		pageContext.forward("01login.jsp?msg=아이디 또는 비번 확인");
+	}else{ //id맞았을때
+		if(user.getUserPass().equals(pw)){//다 맞는경우
+			if(save_id.equals("Y")){
+				response.addCookie(
+						CookieUtils.createCookie("SAVE_ID", id,"/",3600*24*7));
+			}
+			response.addCookie(CookieUtils.createCookie("AUTH", id));
+			response.sendRedirect("01login.jsp");
+		}else{//  비번만 틀린경우
+			pageContext.forward("01login.jsp?msg=아이디 또는 비번 확인");
+		}
+		
+	}
+%>
+
+
+
+	
+	
+</body>
+</html>
+```
+
+#### 03logout
+```js
+<%@page import="com.study.common.util.CookieUtils"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%
+	request.setCharacterEncoding("UTF-8");
+%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<title>Insert title here</title>
+</head>
+
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+<%
+	Cookie cookie=CookieUtils.createCookie("AUTH","");
+	cookie.setMaxAge(0);
+	response.addCookie(cookie);
+	response.sendRedirect("01login.jsp");
+%>
+
+</body>
+</html>
+```
