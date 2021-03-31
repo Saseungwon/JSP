@@ -4197,3 +4197,655 @@ forward  msg:아이디 또는 비번확인
 </body>
 </html>
 ```
+
+
+## 📚 9일차
+
+##
+
+#### 00login
+```js
+<%@page import="com.study.login.vo.UserVO"%>
+<%@page import="com.study.common.util.CookieUtils"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%
+	request.setCharacterEncoding("UTF-8");
+%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<%@include file="/WEB-INF/inc/header.jsp"%>
+<title>Insert title here</title>
+</head>
+<body>
+	<%@include file="/WEB-INF/inc/top.jsp"%>
+
+	<!-- 제공된 파일에 추가하는겁니다 -->
+
+	<!-- 문제 : AUTH라는 쿠키가 있으면 "로그인됨"  
+	없으면 로그인 폼 출력하기
+ -->
+
+	loginCheck : id기억하기 쿠키 :SAVE_ID, id
+
+	<%
+		String msg = request.getParameter("msg");
+	String id = "";
+	String checked = "";
+
+	if (msg != null) {
+		out.print(msg);
+	}
+	CookieUtils cookieUtils = new CookieUtils(request);
+
+	if (cookieUtils.exists("SAVE_ID")) {
+		id = cookieUtils.getValue("SAVE_ID");
+		checked = "checked='checked'";
+	}
+
+	
+	UserVO user = (UserVO)session.getAttribute("USER_INFO");
+	if (user!=null) {
+	%>
+	로그인 중
+	<a href="03logout.jsp" class="btn btn-success btn-sm">로그아웃</a>
+	<%
+		} else {
+	%>
+
+
+	<div class="container">
+		<form action="03loginCheck.jsp" class="loginForm">
+			<h2>로그인</h2>
+			<table class="table table-bordered">
+				<tbody>
+					<tr>
+						<th>아이디</th>
+						<td><input type="text" name="userId" class="form-control input-sm" value="<%=id%>"></td>
+					</tr>
+					<tr>
+						<th>비밀번호</th>
+						<td><input type="password" name="userPass" class="form-control input-sm"></td>
+					</tr>
+					<tr>
+						<td colspan="2"><label><input type="checkbox" name="rememberMe" value="Y" <%=checked %>>ID 기억하기</label></td>
+					</tr>
+					<tr>
+						<td colspan="2">
+							<button type="submit" class="btn btn-primary btn-sm pull-right">로그인</button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</form>
+	</div>
+	<!-- container -->
+	<%}%>
+</body>
+</html>
+```
+
+#### 00loginCheck
+```js
+<%@page import="com.study.common.util.CookieUtils"%>
+<%@page import="java.net.URLEncoder"%>
+<%@page import="com.study.login.vo.UserVO"%>
+<%@page import="com.study.common.util.UserList"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%
+	request.setCharacterEncoding("UTF-8");
+%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<title></title>
+</head>
+<body>
+<!-- <a href="#" class="btn btn-default" onclick="history.go(-1)">뒤로가기</a>
+아이디틀렸을때  -->
+
+
+1.아이디나 비밀번호 입력 안했을 때    forward.  msg:입력안했어요
+2.아이디가 userList에 없을 때          
+forward  msg:아이디 또는 비번확인
+
+3.아이디가 userList에 있고, pw도 맞았을 떄  redircet
+4.아이디가 userList에 있지만 pw가 틀렸을 때
+forward  msg:아이디 또는 비번확인
+<%
+	String id=request.getParameter("userId");
+	String pw=request.getParameter("userPass");
+	String save_id=request.getParameter("rememberMe");
+	if(save_id==null){
+		CookieUtils cookieUtils = new CookieUtils(request);
+		if(cookieUtils.exists("SAVE_ID")){
+			Cookie cookie= CookieUtils.createCookie("SAVE_ID", id, "/" ,0);
+			response.addCookie(cookie);
+		}
+		save_id="";
+	}
+	
+	String redirectPage="";
+	
+	if((id==null||id.isEmpty() )|| (pw==null||pw.isEmpty())){
+		//pageContext.forward("03slogin.jsp?msg=입력안했어요");
+		redirectPage="03login.jsp?msg=" + URLEncoder.encode("입력안함", "utf-8");
+	}
+	
+	UserList userList=new UserList();
+	UserVO user=userList.getUser(id);
+	
+	if(user==null){
+		//pageContext.forward("03login.jsp?msg=아이디 또는 비번 확인");
+		redirectPage="03login.jsp?msg=" + URLEncoder.encode("아이디 또는 비번 확인", "utf-8");
+	}else{ //id맞았을때
+		if(user.getUserPass().equals(pw)){//다 맞는경우
+			if(save_id.equals("Y")){
+				response.addCookie(
+						CookieUtils.createCookie("SAVE_ID", id,"/",3600*24*7));
+			}
+			response.addCookie(CookieUtils.createCookie("AUTH", id));
+			
+			//SAVE_ID는 쿠키로 하는 게 맞고
+			//AUTH쿠키만 session으로 고침
+			//session 속성 이름은  "USER_INFO"
+			session.setAttribute("USER_INFO", user);
+			session.setMaxInactiveInterval(1800); 	//자동 로그아웃(30분)
+			
+			redirectPage="03login.jsp?";
+			
+		}else{//  비번만 틀린경우
+			//pageContext.forward("03login.jsp?msg=아이디 또는 비번 확인");
+			redirectPage="03login.jsp?msg=" + URLEncoder.encode("아이디 또는 비번 확인", "utf-8");
+		}
+		
+		response.sendRedirect(redirectPage); //마지막 한 번만 리다이렉트 해주면 됨
+	}
+%>
+
+
+
+	
+	
+</body>
+</html>
+```
+
+#### 00logout
+```js
+<%@page import="com.study.common.util.CookieUtils"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%
+	request.setCharacterEncoding("UTF-8");
+%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<title>Insert title here</title>
+</head>
+
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+<%
+	session.invalidate();
+	response.sendRedirect("03login.jsp");
+
+/* 	Cookie cookie=CookieUtils.createCookie("AUTH","");
+	cookie.setMaxAge(0);
+	response.addCookie(cookie);
+	response.sendRedirect("01login.jsp"); */
+%>
+
+</body>
+</html>
+```
+
+#### 01footer
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<title></title>
+</head>
+<body>
+<div class="navbar-fixed-bottom">
+	사승원 : <%=request.getParameter("email")%>, tel:<%=request.getParameter("tel") %>
+</div>
+</body>
+</html>
+```
+
+#### 01include
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+
+사승원 페이지 내용들
+
+<!-- 어떤 페이지에서든 밑에 사용하면 된다. -->
+<jsp:include page="01footer.jsp">
+	<jsp:param value="dfg1425@naver.com" name="email"/>
+	<jsp:param value="010-9908-6359" name="tel"/>
+</jsp:include>
+</body>
+</html>
+```
+
+
+#### 02ch
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+<%
+	List<String> chFriendList=
+	(List<String>)request.getAttribute("friendList");
+	out.print("<ul>");
+	for(String chFriend : chFriendList){
+		out.print("<li>" + chFriend);
+	}
+	//db조회해서 한창희 email tel 값 얻어서
+%>
+
+<jsp:include page="02footer.jsp">
+	<jsp:param value='<%=request.getParameter("name") %>' name="name"/>
+	<jsp:param value="gks930620@daum.net" name="email"/>
+	<jsp:param value="010-9908-6359" name="tel"/>
+</jsp:include>
+</body>
+</html>
+```
+
+#### 02footer
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<title></title>
+</head>
+<body>
+<div class="navbar-fixed-bottom">
+ <%=request.getParameter("name")%>
+ <%=request.getParameter("email")%>
+ <%=request.getParameter("tel")%>
+</div>
+</body>
+</html>
+```
+
+#### 02input
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+<!-- jsp:forward는 조건에 따라 서로 다른 페이지를 보여줘야 할 때 -->
+<form action="02result.jsp" method="post">
+	한창희 <input type="radio" name="name" value="한창희">
+	한석규 <input type="radio" name="name" value="한석규">
+	<button type="submit">한씨</button>
+</form>
+
+</body>
+</html>
+```
+
+#### 02result
+```js
+<%@page import="java.util.ArrayList"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<%
+	String name = request.getParameter("name");
+	String pageName = "";
+	List<String> friendList=new ArrayList<String>();
+	
+	if(name.equals("한창희")){
+		friendList.add("유병주");
+		friendList.add("문지영");
+		pageName="02ch.jsp";
+	}else{
+		friendList.add("   ");
+		pageName="02sk.jsp";
+	}
+	//forward 부모페이지(result)에서의 request랑
+	//자식페이지(ch,sk)에서의 request는 같은 request
+	request.setAttribute("friendList", friendList);
+%>
+
+	<jsp:forward page="<%=pageName %>">
+		<jsp:param value="<%=name %>" name="name"/>
+	</jsp:forward>
+
+<%@include file="/WEB-INF/inc/top.jsp" %>
+
+</body>
+</html>
+```
+
+#### 02sk
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+</body>
+</html>
+```
+
+#### 03basicBean
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+</body>
+</html>
+```
+
+#### 03form
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+
+자바빈규약
+1. 패키지 : 패키지 안에 있어야 한다. (default pakage 말고)
+2. 생성자 : 기본생성자
+3. 필드 private
+4. get set public
+5. 직렬화는 선택사항 (implements Serializable)
+
+<form action="03useJavaBean.jsp" method="post">
+	<pre>
+	userId		<input type="text" value="" name="userId">
+	userName	<input type="text" value="" name="userName">
+	userPass	<input type="password" value="" name="userPass">
+	userRole	<input type="hidden" value="MANAGER" name="userRole">
+	</pre>
+	
+	<input type="submit">
+</form>
+
+</body>
+</html>
+```
+
+#### 03useJavaBean
+```js
+<%@page import="com.study.login.vo.UserVO"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+
+
+<jsp:useBean id="inbum" class="com.study.login.vo.UserVO" scope="request"></jsp:useBean>
+
+<!-- 밑에 것을 위에 한줄로 똑같이 쓸 수 있다. -->
+<%
+/* 	UserVO inbum=(UserVO)request.getAttribute("inbum");
+	if(inbum==null){
+		inbum=new UserVO();
+		request.setAttribute("inbum", inbum);
+	} */
+%>
+<pre>
+	set 전<jsp:getProperty property="userId" name="inbum"/>
+	<!-- set을 해야 값이 나옴 set 후 get하기 -->
+	<jsp:setProperty property="userId" name="inbum"/>
+	set 후<jsp:getProperty property="userId" name="inbum"/>
+	
+	<jsp:setProperty property="*" name="inbum"/>
+	
+</pre>
+	<%=inbum %>
+</body>
+</html>
+```
+
+#### 05closSession
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+
+<%
+	session.invalidate(); // 세션 삭제
+%>
+
+</body>
+</html>
+```
+
+#### 05getMemberInfo
+```js
+<%@page import="com.study.login.vo.UserVO"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+
+<%
+	String nameValue= (String)session.getAttribute("name");
+	UserVO user = (UserVO)session.getAttribute("user");
+%>
+
+<%=nameValue %> <br>
+<%=user %>
+</body>
+</html>
+```
+
+#### 05sessionInfo
+```js
+<%@page import="java.util.Date"%>
+<%@page import="java.text.SimpleDateFormat"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+보안과 관련있는 것은 세션으로 세션의 주 사용 용도 로그인 유지
+05sessionInfo
+05closeSession
+05setMemberInfo
+05getMemberInfo
+<br>
+세션 id : <%=session.getId() %> <br>
+<%
+
+	long cTime=session.getCreationTime();
+	long latime=session.getLastAccessedTime();
+	
+	session.setMaxInactiveInterval(15); // 15초 동안 세션에 접근을 안 하면 세션 재 생성
+	
+	Date date = new Date();
+	SimpleDateFormat sdf= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	date.setTime(cTime);
+	sdf.format(date);
+	out.print(sdf.format(date));
+	
+	out.print("<br>");
+	
+	date.setTime(latime);
+	sdf.format(date);
+	out.print(sdf.format(date));
+	
+	
+	%>
+<%
+
+%>
+</body>
+</html>
+```
+
+#### 05setMemberInfo
+```js
+<%@page import="com.study.login.vo.UserVO"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+
+<%//여기는 set
+	session.setAttribute("name", "value");
+	UserVO user = new UserVO("han", "한석규", "1004", "perpect");
+	session.setAttribute("user", user);
+
+%>
+</body>
+</html>
+```
+
+
