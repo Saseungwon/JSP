@@ -4849,3 +4849,344 @@ forward  msg:아이디 또는 비번확인
 ```
 
 
+## 📚 10일차
+##
+
+#### 01el
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+
+EL표현식
+Expression Language
+요청 URI : <%=request.getRequestURI() %> <br>
+요청 URI : ${pageContext.request.requestURI}
+
+<hr>
+EL의 객체탐색
+pageContext, request, session, application 순으로 속성 검사 <br>
+
+<%
+	/* request.setAttribute("name", "사승원"); */
+	session.setAttribute("name", "aaa");
+%>
+
+${name} <br> <!-- requestScope 안 붙여도 속성 이름 만으로 값 받아올 수 있음  -->
+<hr>
+${param.jeong } <%=request.getParameter("jeong") %>
+
+</body>
+</html>
+```
+
+#### 02el
+```js
+<%@page import="com.study.common.util.UserList"%>
+<%@page import="com.study.login.vo.UserVO"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+<%
+	UserVO user = (new UserList()).getUser("malja");
+	request.setAttribute("user", user);
+%>
+
+<%-- ${usadfafd } --%>
+<!-- 없는 속성을 쓰면 값 출력 x 에러 안 남 -->
+
+<%-- ${user.asdsad } --%>
+<!-- 읽기 가능한 프로퍼티가 아닌 경우 에러남 -->
+
+<hr> 쿠키
+${cookie.JSESSIONID.value }
+
+</body>
+</html>
+```
+
+#### 03jsstSet
+```js
+<%@page import="com.study.common.util.UserList"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+    <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<!DOCTYPE html>
+<html>
+<head>
+
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+JSTL
+JSP Standard Tag Library
+jsp
+
+<%
+	UserList userList=new UserList();
+	request.setAttribute("userList",userList);  
+%>
+<c:set value="${userList }" var="nam"/>
+<c:set value="<%=userList %>" var="nam"/>
+${nam.userList }
+<hr>
+<c:set value="String" var="han" scope="request"/>
+<%-- <%
+	request.setAttribute
+	("han", "String");
+%> --%>
+${han }
+
+<c:remove var="han"/>
+
+</body>
+</html>
+```
+
+#### 04input
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+<form action="04jstlIf.jsp" method="post">
+	나이<input type="number" name="number" value="">
+	<input type="submit">
+</form>
+
+
+</body>
+</html>
+```
+
+#### 04jstlIf
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+<%
+	int age =
+	Integer.parseInt(request.getParameter("number"));
+%>
+
+간단한 출력문은 out.print하면 되는데
+복잡한 거는 out.print하기 힘드니까
+스크립트릿%%닫고 출력 했었음
+
+<hr>
+ 	c:if는 else가 없어요
+	<c:if test="<%=age<10 %>">
+		<div border="1">
+			<a href="04child.jsp">어린이</a>
+		</div>
+	</c:if>
+ 	<hr>
+ 	<c:if test="<%=age>=10 %>">
+ 			<div border="1">
+			<a href="04child.jsp">어린이2</a>
+		</div>
+ 	</c:if>
+
+</body>
+</html>
+```
+
+#### 05prodList
+```js
+<%@page import="com.study.common.vo.ProdVO"%>
+<%@page import="com.study.common.util.ProductList"%>
+<%@page import="java.util.List"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"  pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<title>제품 목록</title>
+<style>
+.prod-list tbody td {border: 1px dashed;}
+.prod-list tbody ul {padding-left: 20px;}
+.prod-list tbody ul li {list-style: none; line-height: 1.4em;}
+
+.prod-title a ,
+.prod-title a:active,
+.prod-title a:focus   {text-overflow:ellipsis; text-decoration: none; }
+
+.prod-image {text-align: center;}
+.prod-image img {
+	 height: 150px;
+}
+</style>
+</head>
+<%
+	List<ProdVO> productList= ProductList.getProductList();
+%>
+
+<body>
+<div class="container">
+<h3>제품 목록</h3>
+<table class="prod-list">
+	<caption class="hidden"><em>컴퓨터 제품 목록</em></caption>
+	<colgroup>
+		<col style="width: 33%;">
+		<col style="width: 33%;">
+		<col />
+	</colgroup>
+	<tbody>
+	<%
+		for(int i=0; i<3; i++){
+	%>
+		<tr>
+		<%
+			for(int j=0; j<3; j++){
+		%>
+			<td>
+				<ul>
+					<li class="prod-image"><a href="05prodView.jsp?prodId=<%=productList.get(i*3+j).getProdId()%>">
+					<img alt="" src="<%=request.getContextPath()%><%=productList.get(i*3+j).getProdImg()%>"></a>
+					<li class="prod-title">
+					<a href="05prodView.jsp?prodId=<%=productList.get(i*3+j).getProdImg()%>">
+					<%=productList.get(i*3+j).getProdName() %></a>
+					<li class="prod-price"><%=productList.get(i*3+j).getProdPrice() %>
+					<li class="prod-reg-date"><%=productList.get(i*3+j).getProdRegDate() %>
+				</ul>
+			</td>
+			<%
+			}
+			%>
+			</tr>
+			<%
+			}
+			%>
+			
+	</tbody>
+
+</table>
+</div>
+</body>
+</html>
+
+```
+
+#### 05prodView
+```js
+<%@page import="com.study.common.util.ProductList"%>
+<%@page import="com.study.common.vo.ProdVO"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"   pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<title>상품 상세보기</title>
+<style>
+.btn-basic-area { padding-top: 10px; border-top: 1px dashed;  text-align: center; }
+.btn-basic-area span {padding: 10px 30px 10px; min-width: 100px;}
+</style>
+</head>
+<body>
+<%
+	ProdVO prod= ProductList.getProduct(request.getParameter("prodId"));
+%>
+
+
+<div class="container">
+<h3>상품 상세보기</h3>
+<table class="prod-list">
+	<caption>상품 상세보기</caption>
+	<colgroup>
+		<col style="width: 25%;">
+		<col />
+	</colgroup>
+	<tbody class="prod-detail">
+		<tr>
+			<td>제품명</td>			
+			<td><%=prod.getProdName() %></td>
+		</tr>	
+		<tr>
+			<td>이미지</td>			
+			<td><img alt="" src="<%=request.getContextPath() %><%=prod.getProdImg() %>"></td>
+		</tr>	
+		<tr>
+			<td>가격</td>			
+			<td><%=prod.getProdPrice() %>"</td>
+		</tr>
+		<tr>
+			<td>등록일</td>			
+			<td><%=prod.getProdRegDate() %>"</td>
+		</tr>
+		<tr>
+			<td>상세설명</td>			
+			<td><%=prod.getProdDetail() %>"</td>
+		</tr>
+	</tbody>
+</table>
+
+<div class="btn-basic-area" >
+	<span><a href="/study/index.jsp" >Home</a> </span>
+	<span><a href="prodList.jsp" >상품목록</a> </span>
+</div>
+
+</div><!-- container -->
+</body>
+</html>
+
+```
+
+
+
