@@ -5190,3 +5190,313 @@ ${han }
 
 
 
+## 📚 11일차 
+#### 01jstlForArray
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+<%
+	String[] vacation={"1승원","2승원","3승원","4승원"};
+	request.setAttribute("vacation", vacation);
+%>
+<%--
+<c:forEach items="${vacation }"></c:forEach> <!-- <c:forEach items="<%=vacation %>"></c:forEach>이랑 같음 -->
+
+<c:set var="asd" value="<%=vacation %>"></c:set>
+<c:forEach items="${asd}"></c:forEach>
+ --%>
+ 
+ <!-- varstatus에는 index, current -->
+ <pre>
+<c:forEach items="<%=vacation %>" var="name" varStatus="status">
+	${name } 	${status.current } ${status.index } <%-- 배열의 인덱스(0부터 시작) --%>${status.count } <!-- 1부터 시작 -->
+	<c:if test="${status.index eq 3 }">나는 3번째 인덱스 ${name }</c:if>
+	<c:if test='${status.current eq "3승원" }'>찾는 거 ${name } ${status.current }</c:if>
+</c:forEach>
+</pre>
+
+<%
+	for(String asd : vacation){
+		out.print(asd);
+	}
+%>
+
+
+</body>
+</html>
+```
+
+#### 01jstlForList
+```js
+<%@page import="com.study.common.util.UserList"%>
+<%@page import="com.study.login.vo.UserVO"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+<%
+	List<UserVO> userList=new UserList().getUserList();
+	request.setAttribute("userList", userList);
+%>
+<c:forEach items="${userList }" var="user" varStatus="status">
+	${user.userId } ${user.userPass } ${user.userName } <br>
+</c:forEach>
+
+<hr>
+
+<c:forEach items="${userList }" var="user" varStatus="status">
+	<c:if test="${status.first }">
+	${user.userId } ${user.userPass } ${user.userName } <br>
+	</c:if>
+	<c:if test="${status.last }">
+	${user.userId } ${user.userPass } ${user.userName } <br>
+	</c:if>
+</c:forEach>
+
+</body>
+</html>
+```
+
+#### 02 jstlForMap
+```js
+<%@page import="com.study.common.util.UserList"%>
+<%@page import="com.study.login.vo.UserVO"%>
+<%@page import="java.util.Map"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+<%
+	Map<String, UserVO> userMap=new UserList().getUsersMap();
+	for(Map.Entry<String, UserVO> entry: userMap.entrySet()){
+		out.print(entry.getKey()+" : " + entry.getValue().getUserName());
+	}
+	request.setAttribute("userMap", userMap);
+%>
+<hr>
+
+<!-- 위랑 동일하게 작성하는 법 -->
+<c:forEach items="${userMap }" var="user">
+	${user.key } : ${user.value.userName }
+</c:forEach>
+
+</body>
+</html>
+```js
+
+```
+
+#### 03jstlForToken
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+
+<%
+	String badPeople="1승원, 2승원, 3승원, 4승원, 5승원 6승원" ;
+%>
+<c:forTokens items="<%=badPeople %>" delims="" var="badPerson">
+	${badPerson }
+</c:forTokens>
+
+
+</body>
+</html>
+
+```
+
+#### 04 prodList
+```js
+<%@page import="com.study.common.vo.ProdVO"%>
+<%@page import="com.study.common.util.ProductList"%>
+<%@page import="java.util.List"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"  pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<title>제품 목록</title>
+<style>
+.prod-list tbody td {border: 1px dashed;}
+.prod-list tbody ul {padding-left: 20px;}
+.prod-list tbody ul li {list-style: none; line-height: 1.4em;}
+
+.prod-title a ,
+.prod-title a:active,
+.prod-title a:focus   {text-overflow:ellipsis; text-decoration: none; }
+
+.prod-image {text-align: center;}
+.prod-image img {
+	 height: 150px;
+}
+</style>
+</head>
+
+
+<body>
+<div class="container">
+<h3>제품 목록</h3>
+<table class="prod-list">
+	<caption class="hidden"><em>컴퓨터 제품 목록</em></caption>
+	<colgroup>
+		<col style="width: 33%;">
+		<col style="width: 33%;">
+		<col />
+	</colgroup>
+	<tbody>
+	<!-- c:forEach써서 간단하게 EL표기법으로, items에 객체 넣어서 begin, end 쓰지말고 -->
+	
+<%
+	List<ProdVO> productList=new ProductList().getProductList();
+	request.setAttribute("productList", productList);
+%>
+	
+	
+
+		<c:forEach items="${productList }" var="j" varStatus="status">
+		<c:if test="${status.count %3==1 }"> <tr> </c:if>
+			<td>
+				<ul>
+					<li class="prod-image"><a href="04prodView.jsp?prodId=${j.prodId }">
+					<img alt="wrfgetrgtrg" src="<%=request.getContextPath()%>${j.prodImg}" ></a>
+					<li class="prod-title">
+					<a href="04prodView.jsp?prodId=${j.prodId }">
+					${j.prodName } </a>
+					<li class="prod-price> ${j.prodPrice}">
+					<li class="prod-reg-date ${j.prodRegDate}">
+				</ul>
+			</td>
+		<c:if test="${status.count %3==0 }"></tr> </c:if>
+		
+		</c:forEach>
+</table>
+			
+
+</div>
+</body>
+</html>
+
+```
+
+#### 04prodView
+```js
+<%@page import="java.util.List"%>
+<%@page import="com.study.common.util.ProductList"%>
+<%@page import="com.study.common.vo.ProdVO"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"   pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<title>상품 상세보기</title>
+<style>
+.btn-basic-area { padding-top: 10px; border-top: 1px dashed;  text-align: center; }
+.btn-basic-area span {padding: 10px 30px 10px; min-width: 100px;}
+</style>
+</head>
+<body>
+<%-- <%
+	ProdVO prod= ProductList.getProduct(request.getParameter("prodId"));
+%>
+ --%>
+<%
+	ProdVO prod= ProductList.getProduct(request.getParameter("prodId"));
+	request.setAttribute("prod", prod);
+%>
+
+
+<div class="container">
+<h3>상품 상세보기</h3>
+<table class="prod-list">
+	<caption>상품 상세보기</caption>
+	<colgroup>
+		<col style="width: 25%;">
+		<col />
+	</colgroup>
+	<tbody class="prod-detail">
+		<tr>
+			<td>제품명</td>			
+			<td>${prod.prodName } %></td>
+		</tr>	
+		<tr>
+			<td>이미지</td>			
+			<td><img alt="" src="<%=request.getContextPath() %>${prod.prodImg }"/></td>
+		</tr>	
+		<tr>
+			<td>가격</td>			
+			<td>${prod.prodPrice }</td>
+		</tr>
+		<tr>
+			<td>등록일</td>			
+			<td>${prod.prodRegDate }</td>
+		</tr>
+		<tr>
+			<td>상세설명</td>			
+			<td>${prod.prodDetail}</td>
+		</tr>
+	</tbody>
+</table>
+
+<div class="btn-basic-area" >
+	<span><a href="/study/index.jsp" >Home</a> </span>
+	<span><a href="prodList.jsp" >상품목록</a> </span>
+</div>
+
+</div><!-- container -->
+</body>
+</html>
+
+```
+
