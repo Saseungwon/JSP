@@ -5499,4 +5499,898 @@ ${han }
 </html>
 
 ```
+## 📚 12일차
+#### src – resource – message.properties
+```js
+name = saseungwon
+
+title = \uB85C\uADF8\uC778
+id = \uC544\uC774\uB514
+
+id.placeholder = \uC544\uC774\uB514\uB97C \uC785\uB825\uD558\uC138\uC694
+password = \uBE44\uBC00\uBC88\uD638
+password.placeholder = \uBE44\uBC00\uBC88\uD638 \uD655\uC778
+remember = \uC544\uC774\uB514 \uAE30\uC5B5\uD558\uAE30
+btn.submit = \uB85C\uADF8\uC778
+info = \uC9C1\uCC45 {0}, \uC544\uB514\uB514={1}, \uC774\uB984={2}
+logout = \uB85C\uADF8\uC544\uC6C3
+empty = \uBE44\uBC00\uBC88\uD638\uB098 \uC544\uC774\uB514\uB97C \uC785\uB825\uD574\uC8FC\uC138\uC694
+check = \uC544\uC774\uB514\uC640 \uBE44\uBC00\uBC88\uD638\uB97C \uD655\uC778\uD574\uC8FC\uC138\uC694
+```
+
+#### src – resource – message_en.properties
+```js
+name = saseungwon
+
+title = Login
+id = ID
+
+id.placeholder = Enter Id
+password = password
+password.placeholder = Enter Password
+remember = Save Id
+btn.submit = Login
+info = your Role is {0}, Id={1}, Name={2}
+logout = Logout
+empty = Password or Id is empty.
+check = Check your Id or Password. 
+```
+
+#### src – resource – message_jp.properties
+```js
+name = saseungwon
+
+title = \u30ED\u30B0\u30A4\u30F3
+id = ID
+
+id.placeholder = ID\u3092\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044
+password = \u30D1\u30B9\u30EF\u30FC\u30C9
+password.placeholder = \u30D1\u30B9\u30EF\u30FC\u30C9\u3092\u5165\u529B\u3059\u308B
+remember = ID\u3092\u4FDD\u5B58
+btn.submit = \u30ED\u30B0\u30A4\u30F3
+info = \u3042\u306A\u305F\u306E\u5F79\u5272\u306F {0}, Id={1}, \u540D\u524D={2}
+logout = \u30ED\u30B0\u30A2\u30A6\u30C8
+empty = \u30D1\u30B9\u30EF\u30FC\u30C9\u307E\u305F\u306FID\u304C\u7A7A\u3067\u3059\u3002
+check = ID\u307E\u305F\u306F\u30D1\u30B9\u30EF\u30FC\u30C9\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002
+```
+
+#### login - 03login 
+```js
+<%@page import="com.study.login.vo.UserVO"%>
+<%@page import="com.study.common.util.CookieUtils"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%
+	request.setCharacterEncoding("UTF-8");
+%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<%@include file="/WEB-INF/inc/header.jsp"%>
+<title>Insert title here</title>
+</head>
+<body>
+	<%@include file="/WEB-INF/inc/top.jsp"%>
+	<%
+		String msg = request.getParameter("msg");
+	String id = "";
+	String checked = "";
+
+	if (msg != null) {
+		out.print(msg);
+	}
+	CookieUtils cookieUtils = new CookieUtils(request);
+
+	if (cookieUtils.exists("SAVE_ID")) {
+		id = cookieUtils.getValue("SAVE_ID");
+		checked = "checked='checked'";
+	}
+	%>
+
+	<a href="04localeChange.jsp?lang=jp">日本語</a>
+	<a href="04localeChange.jsp?lang=ko">한국어</a>
+	<a href="04localeChange.jsp?lang=en">english</a>
+	<fmt:bundle basename="resource.message">
+			<%=response.getLocale() %>
+	<c:if test="${USER_INFO ne null }">
+	
+	<fmt:message key="info">
+		<fmt:param value="${USER_INFO.userRole }"></fmt:param>
+		<fmt:param value="${USER_INFO.userId }"></fmt:param>
+		<fmt:param value="${USER_INFO.userName }"></fmt:param>
+	</fmt:message>
+	
+	<fmt:message key="title" />
+	<a href="03logout.jsp" class="btn btn-success btn-sm"><fmt:message key="logout"/> </a>
+	</c:if> 
+	
+	<c:if test="${USER_INFO eq null }">
+		<c:if test="<%=msg !=null %>"> <fmt:message key="<%=msg %>"/> </c:if>
+		
+		<div class="container">
+		<form action="03loginCheck.jsp" class="loginForm">
+			<h2><fmt:message key="title"/> </h2>
+			<table class="table table-bordered">
+				<tbody>
+					<tr>
+						<th><fmt:message key="id"/></th>
+						<td><input type="text" name="userId" class="form-control input-sm" value="<%=id%>" placeholder='<fmt:message key="id.placeholder"/>'></td>
+					</tr>
+					<tr>
+						<th><fmt:message key="password"/></th>
+						<td><input type="password" name="userPass" class="form-control input-sm" placeholder='<fmt:message key="password.placeholder"/>'></td>
+					</tr>
+					<tr>
+						<td colspan="2"><label><input type="checkbox" name="rememberMe" value="Y" <%=checked %>><fmt:message key="remember"/></label></td>
+					</tr>
+					<tr>
+						<td colspan="2">
+							<button type="submit" class="btn btn-primary btn-sm pull-right"><fmt:message key="btn.submit"/></button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</form>
+	</div>
+	
+	
+	</c:if>
+	</fmt:bundle>
+
+	<!-- container -->
+</body>
+</html>
+```
+
+#### login - 03loginCheck
+```js
+<%@page import="com.study.common.util.CookieUtils"%>
+<%@page import="java.net.URLEncoder"%>
+<%@page import="com.study.login.vo.UserVO"%>
+<%@page import="com.study.common.util.UserList"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%
+	request.setCharacterEncoding("UTF-8");
+%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<title></title>
+</head>
+<body>
+<!-- <a href="#" class="btn btn-default" onclick="history.go(-1)">뒤로가기</a>
+아이디틀렸을때  -->
+
+session에 속성 저장은 "USER_INFO"   userVO 를 속성에 저장 
+
+
+1.아이디나 비밀번호 입력 안했을 때    forward.  msg:입력안했어요
+2.아이디가 userList에 없을 때          
+forward  msg:아이디 또는 비번확인
+
+3.아이디가 userList에 있고, pw도 맞았을 떄  redircet 
+4.아이디가 userList에 있지만 pw가 틀렸을 때 
+forward  msg:아이디 또는 비번확인
+<%
+	String id=request.getParameter("userId");
+	String pw=request.getParameter("userPass");
+	String save_id=request.getParameter("rememberMe");
+	if(save_id==null){
+		CookieUtils cookieUtils=new CookieUtils(request);
+		if(cookieUtils.exists("SAVE_ID")){
+			Cookie cookie=CookieUtils.createCookie("SAVE_ID",id,"/",0);
+			response.addCookie(cookie);
+		}
+		save_id="";
+	}
+	
+	String redirectPage="";
+	
+	
+	if((id==null||id.isEmpty() )|| (pw==null||pw.isEmpty())){	
+		//response.sendRedirect("03login.jsp?msg=입력안함")
+		redirectPage="03login.jsp?msg=empty";
+	}
+	
+	UserList userList=new UserList();
+	UserVO user=userList.getUser(id);
+	
+	if(user==null){
+		//response.sendRedirect("03login.jsp?msg=아이디 또는 비번 확인");
+		redirectPage="03login.jsp?msg=check";
+	}else{ //id맞았을때 
+		if(user.getUserPass().equals(pw)){//다 맞는경우
+			if(save_id.equals("Y")){
+				response.addCookie(
+						CookieUtils.createCookie("SAVE_ID", id,"/",3600*24*7));
+			}
+			session.setAttribute("USER_INFO",user );
+			session.setMaxInactiveInterval(1800);
+			//response.sendRedirect("03login.jsp");
+			redirectPage="03login.jsp?";
+		}else{//  비번만 틀린경우
+			//response.sendRedirect("03login.jsp?msg=아이디 또는 비번 확인");
+			redirectPage="03login.jsp?msg="+URLEncoder.encode("아이디 또는 비번 확인","utf-8");
+		}
+		
+	}
+
+	response.sendRedirect(redirectPage);
+%>
+
+
+
+	
+	
+</body>
+</html>
+```
+
+#### login - 03logout
+```js
+<%@page import="com.study.common.util.CookieUtils"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%
+	request.setCharacterEncoding("UTF-8");
+%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<title>Insert title here</title>
+</head>
+
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %> 
+<%
+	session.invalidate();
+	response.sendRedirect("03login.jsp");
+%>
+
+</body>
+</html>
+
+```
+
+#### login - 04localeChange
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+<%
+	String lang = request.getParameter("lang"); 
+%>
+${param.lang }
+
+
+<fmt:setLocale value="${param.lang }" scope="session"/>
+페이지 : <%=request.getHeader("Referer") %> <br>
+
+<c:redirect url='<%=request.getHeader("Referer") %>'></c:redirect>
+
+</body>
+</html>
+```
+
+#### 00jstlIf
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+
+<%
+	request.setAttribute("perfect", "사승원");
+%>
+
+test의 값이 true or false가 나와야 함 
+
+<c:if test='${perfect == "사승원" }'>
+	perfect == "사승원"이 true니까 실행됨
+</c:if>
+
+</body>
+</html>
+```
+
+#### 00prodList
+```js
+<%@page import="com.study.common.util.ProductList"%>
+<%@page import="com.study.common.vo.ProdVO"%>
+<%@page import="java.util.List"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"  pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<title>제품 목록</title>
+<style>
+.prod-list tbody td {border: 1px dashed;}
+.prod-list tbody ul {padding-left: 20px;}
+.prod-list tbody ul li {list-style: none; line-height: 1.4em;}
+
+.prod-title a ,
+.prod-title a:active,
+.prod-title a:focus   {text-overflow:ellipsis; text-decoration: none; }
+
+.prod-image {text-align: center;}
+.prod-image img {
+	 height: 150px; 
+}
+</style>
+</head>
+<body>
+<%
+	List<ProdVO> prodList=ProductList.getProductList();
+	request.setAttribute("prodList", prodList); 
+%>
+
+<div class="container">
+<h3>제품 목록</h3>
+<table class="prod-list">
+	<caption class="hidden"><em>컴퓨터 제품 목록</em></caption>
+	<colgroup>
+		<col style="width: 33%;">
+		<col style="width: 33%;">
+		<col />
+	</colgroup>
+	<tbody>
+	
+	<c:forEach items="${prodList }" var="prod" varStatus="status">
+		<c:if test="${status.count %3 eq 1 }"> <tr>  </c:if>
+			<td>
+				<ul>
+					<li class="prod-image"><a href="00prodView.jsp?prodId=${prod.prodId }"> 
+					<img alt="" src=<%=request.getContextPath()%>${prod.prodImg }></a>
+					<li class="prod-title"><a href="00prodView.jsp?prodId=${prod.prodId }">${prod.prodName }</a>
+					<li class="prod-price">${prod.prodPrice }
+					<li class="prod-reg-date">${prod.prodRegDate } 
+				</ul>
+			</td>
+			<c:if test="${status.count %3 eq 0  }"> </tr> </c:if>
+	</c:forEach>
+	
+
+	</tbody>
+
+</table>
+</div>
+</body>
+</html>
+
+```
+
+#### 00prodView
+```js
+<%@page import="com.study.common.util.ProductList"%>
+<%@page import="com.study.common.vo.ProdVO"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"   pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<title>상품 상세보기</title>
+<style>
+.btn-basic-area { padding-top: 10px; border-top: 1px dashed;  text-align: center; }
+.btn-basic-area span {padding: 10px 30px 10px; min-width: 100px;}
+</style>
+</head>
+<body>
+
+<%
+	ProdVO prod = ProductList.getProduct(request.getParameter("prodId")); 
+	request.setAttribute("prod", prod);
+%>
+
+<div class="container">
+<h3>상품 상세보기</h3>
+<table class="prod-list">
+	<caption>상품 상세보기</caption>
+	<colgroup>
+		<col style="width: 25%;">
+		<col />
+	</colgroup>
+	<tbody class="prod-detail">
+		<tr>
+			<td>제품명</td>			
+			<td>${prod.prodName }</td>
+		</tr>	
+		<tr>
+			<td>이미지</td>			
+			<td><img alt="" src=<%=request.getContextPath()%>${prod.prodImg }></td>
+		</tr>	
+		<tr>
+			<td>가격</td>			
+			<td>${prod.prodPrice }</td>
+		</tr>
+		<tr>
+			<td>등록일</td>			
+			<td>${prod.prodRegDate }</td>
+		</tr>
+		<tr>
+			<td>상세설명</td>			
+			<td>${prod.prodDetail }</td>
+		</tr>
+	</tbody>
+</table>
+
+<div class="btn-basic-area" >
+	<span><a href="/study/index.jsp" >Home</a> </span>
+	<span><a href="prodList.jsp" >상품목록</a> </span>
+</div>
+
+</div><!-- container -->
+</body>
+</html>
+
+```
+
+#### 01jstlForList
+```js
+<%@page import="com.study.common.util.UserList"%>
+<%@page import="com.study.login.vo.UserVO"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+<%
+	List<UserVO> userList = new UserList().getUserList();
+	request.setAttribute("userList", userList); 
+%>
+
+varStatus에서 사용가능한 것들 : index, count, begin, end, current, first, last
+<c:forEach items="${userList }" var="user" varStatus="status">
+${user.userId } ${user.userPass } ${status.count }<br> 
+
+<c:if test="${status.first }">처음에만 실행됨</c:if>
+<c:if test="${status.last }">마지막에만 실행됨</c:if>
+				<!-- 
+	varStatus에서 사용가능한 것들 : index, count, begin, end, current, first, last nolja 1004 1
+	처음에만 실행됨 areum 0000 2
+	malja 1004 3
+	sunja 1111 4
+	milkis 1004 5
+	마지막에만 실행됨
+				 -->
+ </c:forEach>
+
+
+
+</body>
+</html>
+```
+
+#### 01jstlUrl
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+
+<img alt="aa" src="<c:url value='/resource/images/cat1.jpeg'/>">
+
+
+</body>
+</html>
+```
+
+#### 02jstlRedirect
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+
+<!-- 01jstlUrl.jsp 페이지 실행 -->
+<c:redirect url="01jstlUrl.jsp"></c:redirect>
+
+</body>
+</html>
+```
+
+#### 03jstlCatch
+```js
+<%@page import="com.study.common.vo.ProdVO"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+
+<c:catch var="ex">
+	<%
+		ProdVO prod=null; 
+		prod.getProdDetail(); 
+	%>
+</c:catch>
+<c:if test="${ex !=null }">에러가 났다</c:if>
+
+</body>
+</html>
+```
+#### 04jstlFmt
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+<fmt:bundle basename="resource.message">
+	<fmt:message key="name"></fmt:message>
+	<fmt:message key="info">
+		<fmt:param value="manager"></fmt:param>
+		<fmt:param value="malja"></fmt:param>
+		<fmt:param value="말자"></fmt:param>
+	</fmt:message>
+</fmt:bundle>
+
+<!-- 페이지를 따로 안 만들어도 됨 -->
+<a href="04localeChange.jsp?lang=jp">일본어</a>
+<a href="04localeChange.jsp?lang=ko">한국어</a>
+<a href="04localeChange.jsp?lang=en">영어</a>
+
+
+
+</body>
+</html>
+```
+
+#### 04localChange
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+<%
+	String lang = request.getParameter("lang"); 
+%>
+${param.lang }
+
+
+<fmt:setLocale value="${param.lang }" scope="session"/>
+페이지 : <%=request.getHeader("Referer") %> <br>
+
+<c:redirect url='<%=request.getHeader("Referer") %>'></c:redirect>
+
+</body>
+</html>
+```
+
+## 📚 13일차
+
+## SQL 부분
+
+#### number 면 int  그외는 String 
+```sql
+select 
+'private ' 
+|| decode(a.data_type, 'NUMBER', 'int ', 'String ')
+|| lower(substr(a.column_name,1,1)) 
+|| substr(replace(initcap(a.column_name),'_',''),2) 
+from user_tab_cols a
+where a.table_name ='MEMBER'; 
+
+select b.comments
+from user_col_comments b
+where b.table_name='MEMBER'; 
+
+```
+#### VO생성쿼리
+```
+select rpad('private ' 
+|| decode(a.data_type, 'NUMBER', 'int ', 'String ')
+|| lower(substr(a.column_name,1,1)) 
+|| substr(replace(initcap(a.column_name),'_',''),2) 
+|| ';', 40)
+|| '/*' || b.comments || '*/'
+
+from user_tab_cols a, user_col_comments b
+where a.table_name =upper(:TB)
+and a.table_name = b.table_name
+and a.column_name = b.column_name ; 
+```
+
+## jsp 부분
+
+#### src – com.study.member.vo – MemberVO.java
+```
+package com.study.member.vo;
+
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
+public class MemberVO {
+	private String memId;                   /*회원아이디*/
+	private String memPass;                 /*회원비밀번호*/
+	private String memName;                 /*회원이름*/
+	private String memBir;                  /*회원생일*/
+	private String memZip;                  /*회원우편번호*/
+	private String memAdd1;                 /*회원주소*/
+	private String memAdd2;                 /*회원상세주소*/
+	private String memHp;                   /*회원전화번호*/
+	private String memMail;                 /*회원이메일*/
+	private String memJob;                  /*회원직업*/
+	private String memLike;                 /*회원취미*/
+	private int memMileage;                 /*회원마일리지*/
+	private String memDelYn;                /*회원삭제여부*/
+	
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
+	}
+	
+	public String getMemId() {
+		return memId;
+	}
+	public void setMemId(String memId) {
+		this.memId = memId;
+	}
+	public String getMemPass() {
+		return memPass;
+	}
+	public void setMemPass(String memPass) {
+		this.memPass = memPass;
+	}
+	public String getMemName() {
+		return memName;
+	}
+	public void setMemName(String memName) {
+		this.memName = memName;
+	}
+	public String getMemBir() {
+		return memBir;
+	}
+	public void setMemBir(String memBir) {
+		this.memBir = memBir;
+	}
+	public String getMemZip() {
+		return memZip;
+	}
+	public void setMemZip(String memZip) {
+		this.memZip = memZip;
+	}
+	public String getMemAdd1() {
+		return memAdd1;
+	}
+	public void setMemAdd1(String memAdd1) {
+		this.memAdd1 = memAdd1;
+	}
+	public String getMemAdd2() {
+		return memAdd2;
+	}
+	public void setMemAdd2(String memAdd2) {
+		this.memAdd2 = memAdd2;
+	}
+	public String getMemHp() {
+		return memHp;
+	}
+	public void setMemHp(String memHp) {
+		this.memHp = memHp;
+	}
+	public String getMemMail() {
+		return memMail;
+	}
+	public void setMemMail(String memMail) {
+		this.memMail = memMail;
+	}
+	public String getMemJob() {
+		return memJob;
+	}
+	public void setMemJob(String memJob) {
+		this.memJob = memJob;
+	}
+	public String getMemLike() {
+		return memLike;
+	}
+	public void setMemLike(String memLike) {
+		this.memLike = memLike;
+	}
+	public int getMemMileage() {
+		return memMileage;
+	}
+	public void setMemMileage(int memMileage) {
+		this.memMileage = memMileage;
+	}
+	public String getMemDelYn() {
+		return memDelYn;
+	}
+	public void setMemDelYn(String memDelYn) {
+		this.memDelYn = memDelYn;
+	} 
+
+
+
+}
+
+
+``` 
+
+#### 01memberList.jsp
+
+<%@page import="java.util.ArrayList"%>
+<%@page import="java.util.ArrayList"%>
+<%@page import="com.study.member.vo.MemberVO"%>
+<%@page import="java.sql.SQLException"%>
+<%@page import="java.sql.DriverManager"%>
+<%@page import="java.sql.ResultSet"%>
+<%@page import="java.sql.Statement"%>
+<%@page import="java.sql.Connection"%>
+<%@page import="oracle.jdbc.driver.OracleDriver"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+
+<%
+	
+
+	try{
+		Class.forName("oracle.jdbc.driver.OracleDriver"); 
+	}catch(ClassNotFoundException e){
+		
+	}
+	
+	Connection conn=null; 
+	Statement stmt=null;
+	ResultSet rs=null;
+	try{
+		
+	//DB연결
+	conn = DriverManager.getConnection("jdbc:oracle:thin:@127.0.0.1:1521:xe","jsp","oracle");
+	
+	//쿼리 생성
+	stmt = conn.createStatement();
+	rs = stmt.executeQuery("select mem_id, mem_name from member"); 
+
+	%>
+	<% 
+	List<MemberVO> memberList= new ArrayList<MemberVO>();
+	while(rs.next()){
+		MemberVO member = new MemberVO();
+		member.setMemId(rs.getString("mem_id"));
+		member.setMemName(rs.getString("mem_name"));
+		memberList.add(member); 
+	}
+	request.setAttribute("memberList", memberList); 
+	}catch(SQLException e){
+		e.printStackTrace(); 
+	}finally{
+	if(conn!=null){conn.close();}
+	if(stmt!=null){stmt.close();}
+	if(rs!=null){rs.close();}
+	}
+%>
+<table class="table table border">
+	
+	<c:forEach items="${memberList }" var="member">
+		${member.memId } ${member.memName }
+	</c:forEach>
+
+
+</table>
+
+
+</body>
+</html>
+```
 
