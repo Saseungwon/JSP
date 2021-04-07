@@ -6394,3 +6394,523 @@ public class MemberVO {
 </html>
 ```
 
+## 📚 14일차
+#### 01memberList
+```js
+
+<%@page import="java.util.ArrayList"%>
+<%@page import="java.util.ArrayList"%>
+<%@page import="com.study.member.vo.MemberVO"%>
+<%@page import="java.sql.SQLException"%>
+<%@page import="java.sql.DriverManager"%>
+<%@page import="java.sql.ResultSet"%>
+<%@page import="java.sql.Statement"%>
+<%@page import="java.sql.Connection"%>
+<%@page import="oracle.jdbc.driver.OracleDriver"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+
+<%
+	
+
+	try{
+		Class.forName("oracle.jdbc.driver.OracleDriver"); 
+	}catch(ClassNotFoundException e){
+		
+	}
+	
+	Connection conn=null; 
+	Statement stmt=null;
+	ResultSet rs=null;
+	try{
+		
+	//DB연결
+	conn = DriverManager.getConnection("jdbc:oracle:thin:@127.0.0.1:1521:xe","jsp","oracle");
+	
+	//쿼리 생성
+	stmt = conn.createStatement();
+	rs = stmt.executeQuery("select mem_id, mem_name from member"); 
+
+	%>
+	<% 
+	List<MemberVO> memberList= new ArrayList<MemberVO>();
+	while(rs.next()){
+		MemberVO member = new MemberVO();
+		member.setMemId(rs.getString("mem_id"));
+		member.setMemName(rs.getString("mem_name"));
+		memberList.add(member); 
+	}
+	request.setAttribute("memberList", memberList); 
+	}catch(SQLException e){
+		e.printStackTrace(); 
+	}finally{
+	if(conn!=null){conn.close();}
+	if(stmt!=null){stmt.close();}
+	if(rs!=null){rs.close();}
+	}
+%>
+<table class="table table border">
+<c:forEach items="${memberList }"  var="member">
+	<tr>
+		<td>${member.memId }</td>
+		<td>${member.memName }</td>
+		<td>${member.memId }</td>
+		<td> <a href="memberViewST.jsp?memId=${member.memId}">${member.memName} </a>		</td>
+	</tr>
+</c:forEach>
+	
+	<c:forEach items="${memberList }" var="member">
+		${member.memId } ${member.memName }
+	</c:forEach>
+
+
+</table>
+
+
+</body>
+</html>
+```
+
+#### memberViewST 
+```js
+<%@page import="com.study.member.vo.MemberVO"%>
+<%@page import="java.sql.SQLException"%>
+<%@page import="java.sql.DriverManager"%>
+<%@page import="java.sql.ResultSet"%>
+<%@page import="java.sql.Statement"%>
+<%@page import="java.sql.Connection"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<%@ include file="/WEB-INF/inc/header.jsp" %>
+	<title>memberView.jsp </title>
+</head>
+<body>
+
+
+
+<%@include file="/WEB-INF/inc/top.jsp"%>
+<%
+	request.getParameter("memId"); 
+%>
+
+<%
+	Connection conn=null; 
+	Statement stmt=null;
+	ResultSet rs=null;
+	try{
+		
+	//DB연결
+	conn = DriverManager.getConnection("jdbc:oracle:thin:@127.0.0.1:1521:xe","jsp","oracle");
+	
+	//쿼리문 수
+	stmt = conn.createStatement();
+	
+	String memId = request.getParameter("memId");
+	StringBuffer sb = new StringBuffer();
+	sb.append("select mem_id,		mem_pass,		mem_name,		");
+	sb.append(" 		  mem_bir,	mem_zip,		mem_add1,		");
+	sb.append(" 		  mem_add2,	mem_hp,		mem_mail,		");
+	sb.append(" 		  mem_job,	mem_like,		mem_mileage,	");
+	sb.append(" 		  mem_del_yn									");
+	sb.append("from member											");
+	sb.append("where mem_id='" + memId +"'");
+	rs=stmt.executeQuery(sb.toString()); 
+
+	
+	if(rs.next()){
+		MemberVO member = new MemberVO(); 
+		member.setMemId(rs.getString("mem_id")); 
+		member.setMemPass(rs.getString("mem_pass")); 
+		member.setMemName(rs.getString("mem_name")); 
+		member.setMemBir(rs.getString("mem_bir")); 
+		member.setMemZip(rs.getString("mem_zip")); 
+		member.setMemAdd1(rs.getString("mem_add1")); 
+		member.setMemAdd2(rs.getString("mem_add2")); 
+		member.setMemHp(rs.getString("mem_hp")); 
+		member.setMemMail(rs.getString("mem_mail")); 
+		member.setMemJob(rs.getString("mem_job")); 
+		member.setMemLike(rs.getString("mem_like")); 
+		member.setMemMileage(rs.getInt("mem_mileage")); 
+		member.setMemDelYn(rs.getString("mem_del_yn")); 
+		
+		request.setAttribute("member",member); 
+	}
+	
+	}catch(SQLException e){
+		e.printStackTrace(); 
+	}finally{
+	if(conn!=null){conn.close();}
+	if(stmt!=null){stmt.close();}
+	if(rs!=null){rs.close();}
+	}
+	%>
+
+
+
+
+
+ <div class="container">	
+	<h3>회원조회</h3>		
+	<table class="table table-striped table-bordered">
+		<tbody>
+			<tr>
+				<th>아이디</th>
+				<td>${member.memId }</td>
+			</tr>
+			<tr>
+				<th>비밀번호</th>
+				<td><input type="password" name="memPass" class="form-control input-sm" >
+				</td>
+			</tr>
+			<tr>
+				<th>회원명</th>
+				<td>${member.memName }</td>
+			</tr>
+			<tr>
+				<th>우편번호</th>
+				<td>${member.memZip }</td>
+			</tr>
+			<tr>
+				<th>주소</th>
+				<td>${member.memAdd1 }
+				    ${member.memAdd2 }
+				</td>
+			</tr>
+			<tr>
+				<th>생일</th>
+				<td>${member.memBir }</td>
+			</tr>
+			<tr>
+				<th>핸드폰</th>
+				<td>${member.memHp }</td>
+			</tr>
+			<tr>
+				<th>직업</th>
+				<td>
+					<select name="memJob" class="form-control input-sm" >
+						<option value="">-- 직업 선택 --</option>
+						<option value="JB01" ${member.memJob eq "JB01" ? "selected='selected'":"" }>주부</option>
+						<option value="JB02" ${member.memJob eq "JB02" ? "selected='selected'":"" }>은행원</option>
+						<option value="JB03" ${member.memJob eq "JB03" ? "selected='selected'":"" }>공무원</option>
+						<option value="JB04" ${member.memJob eq "JB04" ? "selected='selected'":"" }>축산업</option>
+						<option value="JB05" ${member.memJob eq "JB05" ? "selected='selected'":"" }>회사원</option>
+						<option value="JB06" ${member.memJob eq "JB06" ? "selected='selected'":"" }>농업</option>
+						<option value="JB07" ${member.memJob eq "JB07" ? "selected='selected'":"" }>자영업</option>
+						<option value="JB08" ${member.memJob eq "JB08" ? "selected='selected'":"" }>학생</option>
+						<option value="JB09" ${member.memJob eq "JB09" ? "selected='selected'":"" }>교사</option>					
+					</select>				
+				</td>
+			</tr>
+			<tr>
+				<th>취미</th>
+				<td>
+			
+					<select name="memLike" class="form-control input-sm" >
+						<option value="">-- 취미 선택 --</option>
+						
+						<option value="HB01" ${member.memLike eq "HB01" ? "selected='selected'":"" }>주부</option>
+						<option value="HB02" ${member.memLike eq "HB02" ? "selected='selected'":"" }>은행원</option>
+						<option value="HB03" ${member.memLike eq "HB03" ? "selected='selected'":"" }>공무원</option>
+						<option value="HB04" ${member.memLike eq "HB04" ? "selected='selected'":"" }>축산업</option>
+						<option value="HB05" ${member.memLike eq "HB05" ? "selected='selected'":"" }>회사원</option>
+						<option value="HB06" ${member.memLike eq "HB06" ? "selected='selected'":"" }>농업</option>
+						<option value="HB07" ${member.memLike eq "HB07" ? "selected='selected'":"" }>자영업</option>
+						<option value="HB08" ${member.memLike eq "HB08" ? "selected='selected'":"" }>학생</option>
+						<option value="HB09" ${member.memLike eq "HB09" ? "selected='selected'":"" }>교사</option>				
+					</select>				
+				</td>
+			</tr>			
+			<tr>
+				<th>마일리지</th>
+				<td></td>
+			</tr>
+			<tr>
+				<th>탈퇴여부</th>
+				<td>
+				
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<button type="submit" class="btn btn-primary">
+					<span class="glyphicon glyphicon-home" aria-hidden="true"></span>
+					&nbsp;회원가입
+					</button>
+					<a href="#" class="btn btn-info btn-sm">
+					<span class="glyphicon glyphicon-king" aria-hidden="true"></span>
+					&nbsp;그냥 링크
+					</a>
+				</td>
+			</tr>
+		</tbody>	
+	</table>
+</div>
+
+</body>
+</html>
+```
+
+#### manyConnManyJob
+```js
+<%@page import="java.sql.SQLException"%>
+<%@page import="java.sql.DriverManager"%>
+<%@page import="java.sql.ResultSet"%>
+<%@page import="java.sql.Statement"%>
+<%@page import="java.sql.Connection"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+<%
+	long startTime = System.currentTimeMillis(); 
+	try{
+		Class.forName("oracle.jdbc.driver.OracleDriver"); 
+	}catch(ClassNotFoundException e){
+		e.printStackTrace(); 
+	}
+	
+	Connection conn=null; 
+	Statement stmt=null;
+	ResultSet rs=null;
+	
+	for(int i=0; i<1000; i++){
+	try{
+	//DB연결
+	conn = DriverManager.getConnection("jdbc:oracle:thin:@127.0.0.1:1521:xe","jsp","oracle");
+	
+	//쿼리 생성
+	stmt = conn.createStatement();
+	stmt.executeQuery("select * from member where mem_id='a004'"); 
+	if(rs.next()){
+		out.print(rs.getString("mem_name" + "<br>")); 
+	}
+	}catch(SQLException e){
+		e.printStackTrace(); 
+	}finally{
+	if(conn!=null){conn.close();}
+	if(stmt!=null){stmt.close();}
+	if(rs!=null){rs.close();}
+	}
+	}
+	
+	long lastTime = System.currentTimeMillis();
+	out.print(lastTime-startTime + "ms");
+
+	%>
+
+</body>
+</html>
+```
+
+#### manyConnManyJobDBCP
+```js
+<%@page import="java.sql.SQLException"%>
+<%@page import="java.sql.DriverManager"%>
+<%@page import="java.sql.ResultSet"%>
+<%@page import="java.sql.Statement"%>
+<%@page import="java.sql.Connection"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+<%
+	long startTime = System.currentTimeMillis(); 
+	
+	Connection conn=null; 
+	Statement stmt=null;
+	ResultSet rs=null;
+	
+	for(int i=0; i<1000; i++){
+	try{
+	//DB연결
+	conn = DriverManager.getConnection("jdbc:apache:commons:dbcp:study");
+	
+	//쿼리 생성
+	stmt = conn.createStatement();
+	rs = stmt.executeQuery("select * from member where mem_id='a004'"); 
+	if(rs.next()){
+		out.print(rs.getString("mem_name" + "<br>")); 
+	}
+	}catch(SQLException e){
+		e.printStackTrace(); 
+	}finally{
+	if(conn!=null){conn.close();}
+	if(stmt!=null){stmt.close();}
+	if(rs!=null){rs.close();}
+	}
+	}
+	
+	long lastTime = System.currentTimeMillis();
+	out.print(lastTime-startTime + "ms");
+
+	%>
+
+</body>
+</html>
+```
+
+#### oneConnManyJob
+```js
+<%@page import="java.sql.SQLException"%>
+<%@page import="java.sql.DriverManager"%>
+<%@page import="java.sql.ResultSet"%>
+<%@page import="java.sql.Statement"%>
+<%@page import="java.sql.Connection"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+<%
+	long startTime = System.currentTimeMillis(); 
+	try{
+		Class.forName("oracle.jdbc.driver.OracleDriver"); 
+	}catch(ClassNotFoundException e){
+		e.printStackTrace(); 
+	}
+	
+	Connection conn=null; 
+	Statement stmt=null;
+	ResultSet rs=null;
+	try{
+	//DB연결
+	conn = DriverManager.getConnection("jdbc:oracle:thin:@127.0.0.1:1521:xe","jsp","oracle");
+	
+	//쿼리 생성
+	stmt = conn.createStatement();
+	for(int i=0; i<1000; i++){
+	rs=stmt.executeQuery("select * from member where mem_id='a004'"); 
+	if(rs.next()){
+		out.print(rs.getString("mem_name" + "<br>"));
+	}
+	}
+	}catch(SQLException e){
+		e.printStackTrace(); 
+	}finally{
+	if(conn!=null){conn.close();}
+	if(stmt!=null){stmt.close();}
+	if(rs!=null){rs.close();}
+	}
+	
+	long lastTime = System.currentTimeMillis();
+	out.print(lastTime-startTime + "ms");
+
+	%>
+</body>
+</html>
+```
+
+#### oneConnOneJob
+```js
+<%@page import="java.sql.SQLException"%>
+<%@page import="java.sql.ResultSet"%>
+<%@page import="java.sql.Statement"%>
+<%@page import="java.sql.Connection"%>
+<%@page import="java.sql.DriverManager"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<html>
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
+
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp" %>
+<%	
+	long startTime = System.currentTimeMillis(); 
+	try{
+		Class.forName("oracle.jdbc.driver.OracleDriver"); 
+	}catch(ClassNotFoundException e){
+		e.printStackTrace(); 
+	}
+	
+	Connection conn=null; 
+	Statement stmt=null;
+	ResultSet rs=null;
+	try{
+	//DB연결
+	conn = DriverManager.getConnection("jdbc:oracle:thin:@127.0.0.1:1521:xe","jsp","oracle");
+	
+	//쿼리 생성
+	stmt = conn.createStatement();
+	rs=stmt.executeQuery("select * from member where mem_id='a004'"); 
+	if(rs.next()){
+		out.print(rs.getString("mem_name" + "<br>")); 
+	}
+	}catch(SQLException e){
+		e.printStackTrace(); 
+	}finally{
+	if(conn!=null){conn.close();}
+	if(stmt!=null){stmt.close();}
+	if(rs!=null){rs.close();}
+	}
+	
+	long lastTime = System.currentTimeMillis();
+	out.print(lastTime-startTime + "ms");
+
+	%>
+</body>
+</html>
+```
+
+
+
