@@ -6190,12 +6190,12 @@ select rpad('private '
 || lower(substr(a.column_name,1,1)) 
 || substr(replace(initcap(a.column_name),'_',''),2) 
 || ';', 40)
-|| '/*' || b.comments || '*/'
-
+|| nvl2(b.comments,'/*' || b.comments || '*/','')
 from user_tab_cols a, user_col_comments b
 where a.table_name =upper(:TB)
 and a.table_name = b.table_name
 and a.column_name = b.column_name ; 
+
 ```
 
 ## jsp 부분
