@@ -6911,6 +6911,888 @@ public class MemberVO {
 </body>
 </html>
 ```
+## 📚 15일차(회원 CRUD)
+#### memberList
+```js
+<%@page import="java.util.ArrayList"%>
+<%@page import="com.study.member.vo.MemberVO"%>
+<%@page import="java.sql.PreparedStatement"%>
+<%@page import="java.sql.SQLException"%>
+<%@page import="java.sql.DriverManager"%>
+<%@page import="java.sql.ResultSet"%>
+<%@page import="java.sql.Statement"%>
+<%@page import="java.sql.Connection"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<%@ include file="/WEB-INF/inc/header.jsp" %>
+	<title>memberList.jsp </title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp"%>
+ <div class="container">	
+	<h3>회원목록</h3>		
+<% 
+
+	Connection conn=null; 
+	PreparedStatement pstmt=null;
+	ResultSet rs=null;
+	
+	try{
+		conn = DriverManager.getConnection("jdbc:apache:commons:dbcp:study");
+		pstmt = conn.prepareStatement("select * from member");
+		rs = pstmt.executeQuery(); 
+		List<MemberVO> memberList = new ArrayList<MemberVO>();
+		while(rs.next()){
+			MemberVO member = new MemberVO();	
+		
+			member.setMemId(rs.getString("mem_id")); 
+			member.setMemName(rs.getString("mem_name")); 
+			member.setMemHp(rs.getString("mem_hp")); 
+			member.setMemBir(rs.getString("mem_bir")); 
+			member.setMemJob(rs.getString("mem_job")); 
+			member.setMemMileage(rs.getInt("mem_mileage")); 
+			memberList.add(member); 
+		}
+		request.setAttribute("memberList", memberList);
+	}catch(SQLException e){
+		e.printStackTrace();
+	}finally{
+
+	if(conn!=null){conn.close();}
+	if(pstmt!=null){pstmt.close();}
+	if(rs!=null){rs.close();}
+	}
+	
+%>
+
+	<div>
+		<a href="memberForm.jsp" class="btn btn-primary btn-sm pull-right">회원 등록</a>
+	</div>
+	
+	<table class="table table-striped table-bordered">
+	<caption class="hidden">회원목록 조회</caption>
+	<colgroup>
+		<col style="width: 15%" />
+		<col />
+		<col style="width: 20%" />
+		<col style="width: 20%" />
+		<col style="width: 15%" />
+		<col style="width: 15%" />
+	</colgroup>
+	<thead>
+		<tr>
+			<th>ID</th>
+			<th>회원명</th>
+			<th>HP</th>
+			<th>생일</th>
+			<th>직업</th>
+			<th>마일리지</th>
+		</tr>
+	</thead>
+	<tbody>
+		<c:forEach items="${memberList }" var="member">
+		<tr>
+		<td>${member.memId }</td>
+		<td><a href="memberView.jsp?memId=${member.memId }">
+		${member.memName }</a></td>
+		<td>${member.memHp }</td>
+		<td>${member.memBir }</td>
+		<td>${member.memJob }</td>
+		<td>${member.memMileage }</td>
+		</tr>
+	 	</c:forEach>
+	</tbody>
+		
+			
+		
+		<tbody>
+		</tbody>			
+	</table>
+</div>
+
+</body>
+</html>
+```
+
+#### memberView
+```js
+<%@page import="com.study.member.vo.MemberVO"%>
+<%@page import="java.sql.PreparedStatement"%>
+<%@page import="java.sql.SQLException"%>
+<%@page import="java.sql.DriverManager"%>
+<%@page import="java.sql.ResultSet"%>
+<%@page import="java.sql.Statement"%>
+<%@page import="java.sql.Connection"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<%@ include file="/WEB-INF/inc/header.jsp" %>
+	<title>memberView.jsp </title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp"%>
+ <div class="container">	
+ <%
+ 
+
+	Connection conn=null; 
+	PreparedStatement pstmt=null;
+	ResultSet rs=null;
+	
+	try{
+		conn = DriverManager.getConnection("jdbc:apache:commons:dbcp:study");
+		StringBuffer sb = new StringBuffer();
+		sb.append("select mem_id,		mem_pass,		mem_name,		");
+		sb.append(" 		  mem_bir,	mem_zip,		mem_add1,		");
+		sb.append(" 		  mem_add2,	mem_hp,		mem_mail,		");
+		sb.append(" 		  mem_job,	mem_like,		mem_mileage,	");
+		sb.append(" 		  mem_del_yn									");
+		sb.append("from member											");
+		sb.append("where mem_id=      ? ");
+		
+		//pstmt객채 생성
+		pstmt=conn.prepareStatement(sb.toString()); 
+		//pstmt ? 값 설정
+		pstmt.setString(1, request.getParameter("memId")); 
+		//쿼리실행
+		rs=pstmt.executeQuery(); 
+		if(rs.next()){
+			MemberVO member=new MemberVO(); 
+			member.setMemId(rs.getString("mem_id"));
+			member.setMemPass(rs.getString("mem_pass"));
+			member.setMemName(rs.getString("mem_name"));
+			member.setMemBir(rs.getString("mem_bir"));
+			member.setMemZip(rs.getString("mem_zip"));
+			member.setMemAdd1(rs.getString("mem_add1"));
+			member.setMemAdd2(rs.getString("mem_add2"));
+			member.setMemHp(rs.getString("mem_hp"));
+			member.setMemMail(rs.getString("mem_mail"));
+			member.setMemJob(rs.getString("mem_job"));
+			member.setMemLike(rs.getString("mem_like"));
+			member.setMemMileage(rs.getInt("mem_mileage"));
+			member.setMemDelYn(rs.getString("mem_del_yn"));
+			
+			request.setAttribute("member", member);
+		}
+		
+	}catch(SQLException e){
+		e.printStackTrace();
+	}finally{
+
+	if(conn!=null){conn.close();}
+	if(pstmt!=null){pstmt.close();}
+	if(rs!=null){rs.close();}
+	}
+	
+%>
+ 
+ 
+ 
+ 
+ 
+		
+		
+	<h3>상세보기</h3>		
+	<table class="table table-striped table-bordered">
+		<tbody>
+			<tr>
+				<th>아이디</th>
+				<td>${member.memId }</td>
+			</tr>
+			<tr>
+				<th>비밀번호</th>
+				<td>${member.memPass }</td>
+			</tr>
+			<tr>
+				<th>회원명</th>
+				<td>${member.memName }</td>
+			</tr>
+			<tr>
+				<th>우편번호</th>
+				<td>${member.memZip }</td>
+			</tr>
+			<tr>
+				<th>주소</th>
+				<td>${member.memAdd1 }
+					${member.memAdd2 } 
+				</td>
+			</tr>
+			<tr>
+				<th>생일</th>
+				<td>${member.memBir }</td>
+			</tr>
+			<tr>
+				<th>핸드폰</th>
+				<td>${member.memHp }</td>
+			</tr>
+			<tr>
+				<th>직업</th>
+				<td>
+				${member.memJob }		
+				</td>
+			</tr>
+			<tr>
+				<th>취미</th>
+				<td>
+				${member.memLike }
+				</td>
+			</tr>			
+			<tr>
+				<th>마일리지</th>
+				<td>${member.memMileage }</td>
+			</tr>
+			<tr>
+				<th>탈퇴여부</th>
+				<td>
+				${member.memDelYn }
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<a href="memberList.jsp?" class="btn btn-default btn-sm">
+					<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+					&nbsp;목록
+					</a>
+					<%-- <%=request.getParameter("memId") %>, <%=memId %>, ${param.memId}, <%=rs.getString("mem_id") %> 다 똑같음 --%>
+					<a href='memberEdit.jsp?memId=<%=request.getParameter("memId")%>' class="btn btn-info btn-sm">
+					<span class="glyphicon glyphicon-king" aria-hidden="true"></span>
+					&nbsp;수정
+					</a>
+					<a href='memberDelete.jsp?memId=<%=request.getParameter("memId")%>' class="btn btn-danger btn-sm">
+					<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+					&nbsp;삭제
+					</a>
+				</td>
+			</tr>
+		</tbody>	
+			
+	</table>
+	
+	
+
+</div>
+
+</body>
+</html>
+```
+
+#### memberModify
+```js
+<%@page import="java.sql.PreparedStatement"%>
+<%@page import="java.sql.SQLException"%>
+<%@page import="java.sql.DriverManager"%>
+<%@page import="java.sql.ResultSet"%>
+<%@page import="java.sql.Statement"%>
+<%@page import="java.sql.Connection"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
+
+<%
+	request.setCharacterEncoding("UTF-8");
+%>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<%@ include file="/WEB-INF/inc/header.jsp" %>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp"%>
+
+<jsp:useBean id="member" class="com.study.member.vo.MemberVO" ></jsp:useBean>
+<jsp:setProperty property="*" name="member"/> <!--Post 파라미터를 자동으로 받아줌 name으로 -->
+
+<%-- <%
+out.print();
+%> --%>
+
+<%
+
+	Connection conn=null; 
+	PreparedStatement pstmt=null;
+	ResultSet rs=null;
+	
+	try{
+		conn = DriverManager.getConnection("jdbc:apache:commons:dbcp:study");
+		StringBuffer sb = new StringBuffer();
+		sb.append("update member set     ");
+		//sb.append("mem_pass= ?            ,"); 
+		sb.append("mem_name= ?            ,"); 
+		//sb.append("mem_bir= ?            ,"); 
+		sb.append("mem_zip= ?            ,"); 
+		sb.append("mem_add1= ?            ,"); 
+		sb.append("mem_add2= ?            ,"); 
+		sb.append("mem_hp= ?            ,"); 
+		sb.append("mem_mail= ?            ,"); 
+		sb.append("mem_job= ?            ,"); 
+		sb.append("mem_like= ?            "); 
+		sb.append("where mem_id= ?       "); 		
+		
+		//pstmt객채 생성
+		pstmt=conn.prepareStatement(sb.toString()); 
+		//pstmt ? 값 설정
+		int i = 1 ; 
+		//pstmt.setString(i++, member.getMemPass()); 
+		pstmt.setString(i++, member.getMemName()); 
+		//pstmt.setString(i++, member.getMemBir()); 
+		pstmt.setString(i++, member.getMemZip()); 
+		pstmt.setString(i++, member.getMemAdd1()); 
+		pstmt.setString(i++, member.getMemAdd2()); 
+		pstmt.setString(i++, member.getMemHp()); 
+		pstmt.setString(i++, member.getMemMail()); 
+		pstmt.setString(i++, member.getMemJob()); 
+		pstmt.setString(i++, member.getMemLike()); 
+		pstmt.setString(i++, member.getMemId()); 
+		//쿼리실행
+		int cnt = pstmt.executeUpdate();
+		
+		if(cnt == 1){
+			request.setAttribute("cnt", cnt); 
+		}
+		
+	}catch(SQLException e){
+		e.printStackTrace();
+	}finally{
+
+	if(conn!=null){conn.close();}
+	if(pstmt!=null){pstmt.close();}
+	if(rs!=null){rs.close();}
+	}
+	
+%>
+
+
+
+ <div class="container">	
+	<h3>회원수정</h3>		
+		<c:if test="${cnt==1 }">
+			<div class="alert alert-success">
+				정상적으로 수정했습니다.
+			</div>		
+		</c:if>
+		
+		<c:if test="${cnt!=1 }">
+			<div class="alert alert-warning">
+				등록 실패.
+			</div>	
+		</c:if>
+	</div>
+</body>
+</html>
+```
+
+#### memberRegist
+```js
+<%@page import="java.sql.SQLException"%>
+<%@page import="java.sql.DriverManager"%>
+<%@page import="java.sql.ResultSet"%>
+<%@page import="java.sql.PreparedStatement"%>
+<%@page import="java.sql.Connection"%>
+<%@page import="com.study.member.vo.MemberVO"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<% request.setCharacterEncoding("utf-8"); %> 
+<!DOCTYPE html>
+<html>
+<head>
+<%@ include file="/WEB-INF/inc/header.jsp"  %>
+</head>
+
+
+
+
+<body>
+<%@ include file="/WEB-INF/inc/top.jsp"  %>
+<jsp:useBean id="member" class="com.study.member.vo.MemberVO"></jsp:useBean>
+<jsp:setProperty property="*" name="member"/>
+<%
+
+	Connection conn=null; 
+	PreparedStatement pstmt=null;
+	ResultSet rs=null;
+	
+	try{
+		conn = DriverManager.getConnection("jdbc:apache:commons:dbcp:study");
+		StringBuffer sb = new StringBuffer();
+		sb.append("insert into member values(  ");
+		sb.append("?   , "); 
+		sb.append("?   , "); 
+		sb.append("?   , "); 
+		sb.append("?   , "); 
+		sb.append("?   , "); 
+		sb.append("?   , "); 
+		sb.append("?   , "); 
+		sb.append("?   , "); 
+		sb.append("?   , "); 
+		sb.append("?   , "); 
+		sb.append("?   , "); 
+		sb.append("0   , "); 
+		sb.append("'N'    "); 
+		sb.append(")"); 
+		
+	
+		
+		//pstmt객채 생성
+		pstmt=conn.prepareStatement(sb.toString()); 
+		//pstmt ? 값 설정
+		int i = 1 ; 
+		pstmt.setString(i++, member.getMemId()); 
+		pstmt.setString(i++, member.getMemPass()); 
+		pstmt.setString(i++, member.getMemName()); 
+		pstmt.setString(i++, member.getMemBir()); 
+		pstmt.setString(i++, member.getMemZip()); 
+		pstmt.setString(i++, member.getMemAdd1()); 
+		pstmt.setString(i++, member.getMemAdd2()); 
+		pstmt.setString(i++, member.getMemHp()); 
+		pstmt.setString(i++, member.getMemMail()); 
+		pstmt.setString(i++, member.getMemJob()); 
+		pstmt.setString(i++, member.getMemLike()); 
+		//쿼리실행
+		int cnt = pstmt.executeUpdate();
+		
+		if(cnt == 1){
+			request.setAttribute("cnt", cnt); 
+		}
+		
+	}catch(SQLException e){
+		e.printStackTrace();
+	}finally{
+
+	if(conn!=null){conn.close();}
+	if(pstmt!=null){pstmt.close();}
+	if(rs!=null){rs.close();}
+	}
+	
+%>
+
+ <div class="container">	
+ 
+	<h3>회원등록</h3>		
+	<c:if test="${cnt==1 }">
+		<div class="alert alert-success">
+			정상적으로 회원 등록 되었습니다.
+		</div>		
+	</c:if>
+
+	<c:if test="${cnt!=1 }">
+		<div class="alert alert-success">
+			등록 실패 
+		</div>		
+	</c:if>
+
+
+ 	<a href="memberList.jsp" class="btn btn-default btn-sm">
+		<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+		&nbsp;목록
+	</a>
+ </div>
+</body>
+</html>
+```
+
+#### memberForm
+```js
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<%@ include file="/WEB-INF/inc/header.jsp" %>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp"%>
+ <div class="container">	
+	<h3>회원가입</h3>		
+	<form action="memberRegist.jsp" method="post" >
+	<table class="table table-striped table-bordered">
+		<tbody>
+			<tr>
+				<th>아이디</th>
+				<td><input type="text" name="memId" class="form-control input-sm" 
+						   required="required" pattern="\w{4,}" title="알파벳과 숫자로 4글자 이상 입력" ></td>
+			</tr>
+			<tr>
+				<th>비밀번호</th>
+				<td><input type="password" name="memPass" class="form-control input-sm"
+						   required="required" pattern="\w{4,}" title="알파벳과 숫자로 4글자 이상 입력" ></td>
+			</tr>
+			<tr>
+				<th>회원명</th>
+				<td><input type="text" name="memName" class="form-control input-sm"
+						   required="required" pattern="[가-힣]{2,}" title="한글로 2글자 이상 입력" ></td>
+			</tr>
+			<tr>
+				<th>우편번호</th>
+				<td><input type="text" name="memZip" class="form-control input-sm" ></td>
+			</tr>
+			<tr>
+				<th>주소</th>
+				<td><input type="text" name="memAdd1" class="form-control input-sm" >
+					<input type="text" name="memAdd2" class="form-control input-sm" >
+				</td>
+			</tr>
+			<tr>
+				<th>생일</th>
+				<td><input type="date" name="memBir" class="form-control input-sm" ></td>
+			</tr>
+			<tr>
+				<th>메일</th>
+				<td><input type="email" name="memMail" class="form-control input-sm" ></td>
+			</tr>
+			<tr>
+				<th>핸드폰</th>
+				<td><input type="tel" name="memHp" class="form-control input-sm" ></td>
+			</tr>
+			<tr>
+				<th>직업</th>
+				<td>
+					<select name="memJob" class="form-control input-sm" required="required">
+						<option value="">-- 직업 선택 --</option>
+						<option value="JB01">주부</option>
+						<option value="JB02">은행원</option>
+						<option value="JB03">공무원</option>
+						<option value="JB04">축산업</option>
+						<option value="JB05">회사원</option>
+						<option value="JB06">농업</option>
+						<option value="JB07">자영업</option>
+						<option value="JB08">학생</option>
+						<option value="JB09">교사</option>					
+					</select>				
+				</td>
+			</tr>
+			<tr>
+				<th>취미</th>
+				<td>
+					<select name="memLike" class="form-control input-sm" required="required">
+						<option value="">-- 취미 선택 --</option>
+						<option value="HB01">서예</option>
+						<option value="HB02">장기</option>
+						<option value="HB03">수영</option>
+						<option value="HB04">독서</option>
+						<option value="HB05">당구</option>
+						<option value="HB06">바둑</option>
+						<option value="HB07">볼링</option>
+						<option value="HB08">스키</option>
+						<option value="HB09">만화</option>
+						<option value="HB10">낚시</option>
+						<option value="HB11">영화감상</option>
+						<option value="HB12">등산</option>
+						<option value="HB13">개그</option>
+						<option value="HB14">카레이싱</option>					
+					</select>				
+				</td>
+			</tr>			
+			<tr>
+				<td colspan="2">
+					<button type="submit" class="btn btn-primary">
+					<span class="glyphicon glyphicon-home" aria-hidden="true"></span>
+					&nbsp;회원가입
+					</button>
+					<a href="memberList.jsp" class="btn btn-info btn-sm">
+					<span class="glyphicon glyphicon-th-lis" aria-hidden="true"></span>
+					&nbsp;목록
+					</a>
+				</td>
+			</tr>
+		</tbody>	
+	</table>
+	</form>
+</div>
+
+</body>
+</html>
+```
+
+#### memberEdit
+```js
+<%@page import="com.study.member.vo.MemberVO"%>
+<%@page import="java.sql.Connection"%>
+<%@page import="java.sql.SQLException"%>
+<%@page import="java.sql.DriverManager"%>
+<%@page import="java.sql.ResultSet"%>
+<%@page import="java.sql.PreparedStatement"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<%@ include file="/WEB-INF/inc/header.jsp" %>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp"%>
+
+<%
+ 
+
+	Connection conn=null; 
+	PreparedStatement pstmt=null;
+	ResultSet rs=null;
+	
+	try{
+		conn = DriverManager.getConnection("jdbc:apache:commons:dbcp:study");
+		StringBuffer sb = new StringBuffer();
+		sb.append("select mem_id,		mem_pass,		mem_name,		");
+		sb.append(" 		  mem_bir,	mem_zip,		mem_add1,		");
+		sb.append(" 		  mem_add2,	mem_hp,		mem_mail,		");
+		sb.append(" 		  mem_job,	mem_like,		mem_mileage,	");
+		sb.append(" 		  mem_del_yn									");
+		sb.append("from member											");
+		sb.append("where mem_id=      ? ");
+		
+		//pstmt객채 생성
+		pstmt=conn.prepareStatement(sb.toString()); 
+		//pstmt ? 값 설정
+		pstmt.setString(1, request.getParameter("memId")); 
+		//쿼리실행
+		rs=pstmt.executeQuery(); 
+		if(rs.next()){
+			MemberVO member=new MemberVO(); 
+			member.setMemId(rs.getString("mem_id"));
+			member.setMemPass(rs.getString("mem_pass"));
+			member.setMemName(rs.getString("mem_name"));
+			member.setMemBir(rs.getString("mem_bir"));
+			member.setMemZip(rs.getString("mem_zip"));
+			member.setMemAdd1(rs.getString("mem_add1"));
+			member.setMemAdd2(rs.getString("mem_add2"));
+			member.setMemHp(rs.getString("mem_hp"));
+			member.setMemMail(rs.getString("mem_mail"));
+			member.setMemJob(rs.getString("mem_job"));
+			member.setMemLike(rs.getString("mem_like"));
+			member.setMemMileage(rs.getInt("mem_mileage"));
+			member.setMemDelYn(rs.getString("mem_del_yn"));
+			
+			request.setAttribute("member", member);
+		}
+		
+	}catch(SQLException e){
+		e.printStackTrace();
+	}finally{
+
+	if(conn!=null){conn.close();}
+	if(pstmt!=null){pstmt.close();}
+	if(rs!=null){rs.close();}
+	}
+	
+%>
+ 
+ 
+
+
+ <div class="container">	
+	<h3>회원 정보 수정</h3>	
+	<form action="memberModify.jsp" method="post" >
+	<table class="table table-striped table-bordered">
+		<tbody>
+			<tr>
+				<th>아이디</th>
+				<td>${member.memId } <input type="hidden" value="${member.memId }" name="memId"> </td>
+			</tr>
+			<tr>
+				<th>비밀번호</th>
+				<td><input type="password" name="memPass" class="form-control input-sm" 
+						    pattern="\w{4,}" title="알파벳과 숫자로 4글자 이상 입력" ></td>
+			</tr>
+			<tr>
+				<th>회원명</th>
+				<td><input type="text" name="memName" class="form-control input-sm" value='${member.memName }'
+						   required="required" pattern="[가-힣]{2,}" title="한글로 2글자 이상 입력" ></td>
+			</tr>
+			<tr>
+				<th>우편번호</th>
+				<td><input type="text" name="memZip" class="form-control input-sm" value='${member.memZip }'></td>
+			</tr>
+			<tr>
+				<th>주소</th>
+				<td><input type="text" name="memAdd1" class="form-control input-sm" value='${member.memAdd1 }'>
+					<input type="text" name="memAdd2" class="form-control input-sm" value='${member.memAdd2 }'>
+				</td>
+			</tr>
+			<tr>
+				<th>생일</th>
+				<td><input type="date" name="memBir" class="form-control input-sm" value='${member.memBir }'></td>
+			</tr>
+			<tr>
+				<th>메일</th>
+				<td><input type="email" name="memMail" class="form-control input-sm" required="required" value='${member.memMail }'></td>
+			</tr>
+			<tr>
+				<th>핸드폰</th>
+				<td><input type="tel" name="memHp" class="form-control input-sm" value='${member.memHp }'></td>
+			</tr>
+			<tr>
+				<th>직업</th>
+				<td>
+				
+					<select name="memJob" class="form-control input-sm" >
+						<option value="">-- 직업 선택 --</option>
+						<option value="JB01" ${member.memJob eq "JB01" ? "selected='selected'":""}>주부</option>
+						<option value="JB02" ${member.memJob eq "JB02" ? "selected='selected'":""}>은행원</option>
+						<option value="JB03" ${member.memJob eq "JB03" ? "selected='selected'":""}>공무원</option>
+						<option value="JB04" ${member.memJob eq "JB04" ? "selected='selected'":""}>축산업</option>
+						<option value="JB05" ${member.memJob eq "JB05" ? "selected='selected'":""}>회사원</option>
+						<option value="JB06" ${member.memJob eq "JB06" ? "selected='selected'":""}>농업</option>
+						<option value="JB07" ${member.memJob eq "JB07" ? "selected='selected'":""}>자영업</option>
+						<option value="JB08" ${member.memJob eq "JB08" ? "selected='selected'":""}>학생</option>
+						<option value="JB09" ${member.memJob eq "JB09" ? "selected='selected'":""}>교사</option>					
+					</select>			
+				</td>
+			</tr>
+			<tr>
+				<th>취미</th>
+				<td>
+				
+					<select name="memLike" class="form-control input-sm" >
+						<option value="">-- 취미 선택 --</option>
+						<option value="HB01" ${member.memLike eq "HB01" ? "selected='selected'":""}>서예</option>
+						<option value="HB02" ${member.memLike eq "HB02" ? "selected='selected'":""}>>장기</option>
+						<option value="HB03" ${member.memLike eq "HB03" ? "selected='selected'":""}>>수영</option>
+						<option value="HB04" ${member.memLike eq "HB04" ? "selected='selected'":""}>>독서</option>
+						<option value="HB05" ${member.memLike eq "HB05" ? "selected='selected'":""}>>당구</option>
+						<option value="HB06" ${member.memLike eq "HB06" ? "selected='selected'":""}>>바둑</option>
+						<option value="HB07" ${member.memLike eq "HB07" ? "selected='selected'":""}>>볼링</option>
+						<option value="HB08" ${member.memLike eq "HB08" ? "selected='selected'":""}>>스키</option>
+						<option value="HB09" ${member.memLike eq "HB09" ? "selected='selected'":""}>>만화</option>
+						<option value="HB10" ${member.memLike eq "HB10" ? "selected='selected'":""}>>낚시</option>
+						<option value="HB11" ${member.memLike eq "HB11" ? "selected='selected'":""}>>영화감상</option>
+						<option value="HB12" ${member.memLike eq "HB12" ? "selected='selected'":""}>>등산</option>
+						<option value="HB13" ${member.memLike eq "HB13" ? "selected='selected'":""}>>개그</option>
+						<option value="HB14" ${member.memLike eq "HB14" ? "selected='selected'":""}>>카레이싱</option>					
+					</select>			
+				</td>
+			</tr>	
+			<tr>
+				<th>마일리지</th>
+				<td>${member.memMileage }</td>
+			</tr>	
+			<tr>
+				<th>탈퇴여부</th>
+				<td>${member.memDelYn }</td>
+			</tr>	
+			<tr>
+				<td colspan="2">
+					<a href="memberList.jsp" class="btn btn-info btn-sm">
+					<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+					&nbsp;목록으로
+					</a>
+					<button type="submit" class="btn btn-primary">
+					<span class="glyphicon glyphicon-heart" aria-hidden="true"></span>
+					&nbsp;&nbsp; 저장
+					</button>
+				</td>
+			</tr>
+		</tbody>	
+	</table>
+	</form>
+
+</div>
+
+</body>
+</html>
+```
+
+#### memberDelete
+```js
+
+<%@page import="com.study.member.vo.MemberVO"%>
+
+<%@page import="java.sql.PreparedStatement"%>
+<%@page import="java.sql.SQLException"%>
+<%@page import="java.sql.DriverManager"%>
+<%@page import="java.sql.ResultSet"%>
+<%@page import="java.sql.Statement"%>
+<%@page import="java.sql.Connection"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+ <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
+ 
+<%
+	request.setCharacterEncoding("UTF-8");
+%>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<%@ include file="/WEB-INF/inc/header.jsp" %>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp"%>
+
+ <%
+ 
+
+	Connection conn=null; 
+	PreparedStatement pstmt=null;
+	ResultSet rs=null;
+	
+	try{
+		conn = DriverManager.getConnection("jdbc:apache:commons:dbcp:study");
+		StringBuffer sb = new StringBuffer();
+		sb.append("update member set mem_del_yn= 'Y' ");
+		sb.append("where mem_id =?   ");
+		
+		//pstmt객채 생성
+		pstmt=conn.prepareStatement(sb.toString()); 
+		//pstmt ? 값 설정
+		pstmt.setString(1, request.getParameter("memId")); 
+		//쿼리실행
+		int cnt =pstmt.executeUpdate(); 
+		if(cnt==1){
+			request.setAttribute("cnt", cnt);
+		}
+		
+	}catch(SQLException e){
+		e.printStackTrace();
+	}finally{
+
+	if(conn!=null){conn.close();}
+	if(pstmt!=null){pstmt.close();}
+	if(rs!=null){rs.close();}
+	}
+	
+%>
+ <div class="container">	
+	<h3>회원삭제</h3>		
+	
+		<c:if test="${cnt==1 }">
+			<div class="alert alert-warning">
+				<h4>삭제 성공</h4>
+				정상적으로 회원을 삭제했습니다.
+			</div>
+		</c:if>
+		
+		
+<%-- 				<c:if test="${cnt==1 }">
+			<div class="alert alert-warning">
+				<h4>삭제 성공</h4>
+				정상적으로 회원을 삭제했습니다.
+			</div>
+		</c:if> --%>
+		
+		<c:if test="${cnt!=1 }">
+				<div class="alert alert-warning">
+					<h4>회원이 존재하지 않습니다.</h4>
+					올바르게 접근해주세요.
+				</div>
+		</c:if>
+		
+	<a href="memberList.jsp?" class="btn btn-default btn-sm">
+		<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+		&nbsp;목록
+	</a>
+	</div>
+</body>
+</html>
+```
+
+
 
 
 
