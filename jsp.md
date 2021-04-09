@@ -7792,6 +7792,583 @@ out.print();
 </html>
 ```
 
+## 📚 16일차(게시판 CRUD)
+
+#### 게시판 데이터(SQL)
+```sql
+insert into free_board values(
+    SEQ_FREE_BOARD.nextval
+    ,'더미 제목'
+    ,'BC01'
+    ,'술꾼 송인범'
+    ,'1004'
+    ,'더미제목 기이이이이이이이이이이일게'
+    ,'127.0.0.1'
+    ,0
+    ,sysdate
+    ,null
+    ,'N'
+); 
+
+insert into free_board
+    select SEQ_FREE_BOARD.nextval
+           ,bo_title
+           ,bo_category
+           ,bo_writer
+           ,bo_pass
+           ,bo_content
+           ,bo_ip
+           ,bo_hit
+           ,bo_reg_date
+           ,bo_mod_date
+           ,bo_del_yn
+           from free_board
+;
+commit;
+```
+
+#### freeList
+```js
+<%@page import="java.sql.SQLException"%>
+<%@page import="java.util.ArrayList"%>
+<%@page import="com.study.free.vo.freeBoardVO"%>
+<%@page import="java.sql.DriverManager"%>
+<%@page import="java.sql.ResultSet"%>
+<%@page import="java.sql.PreparedStatement"%>
+<%@page import="java.sql.Connection"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<%@include file="/WEB-INF/inc/header.jsp" %>
+</head>
+<body>
+<%@ include file="/WEB-INF/inc/top.jsp"%>
+<% 
+
+	Connection conn=null; 
+	PreparedStatement pstmt=null;
+	ResultSet rs=null;
+	
+	try{
+		conn = DriverManager.getConnection("jdbc:apache:commons:dbcp:study");
+		pstmt = conn.prepareStatement("select * from free_board");
+		rs = pstmt.executeQuery(); 
+		List<freeBoardVO> freeBoard = new ArrayList<freeBoardVO>();
+		while(rs.next()){
+			freeBoardVO board = new freeBoardVO();	
+		
+			board.setBoNo(rs.getInt("bo_no")); 
+			board.setBoCategory(rs.getString("bo_category")); 
+			board.setBoTitle(rs.getString("bo_title")); 
+			board.setBoWriter(rs.getString("bo_writer")); 
+			board.setBoRegDate(rs.getString("bo_reg_date")); 
+			board.setBoHit(rs.getInt("bo_hit")); 
+			freeBoard.add(board); 
+		}
+		request.setAttribute("freeBoard", freeBoard);
+	}catch(SQLException e){
+		e.printStackTrace();
+	}finally{
+
+	if(conn!=null){conn.close();}
+	if(pstmt!=null){pstmt.close();}
+	if(rs!=null){rs.close();}
+	}
+	
+%>
+
+
+<div class="container">
+	<div class="page-header">
+		<h3>자유게시판 - <small>글 목록</small></h3>
+	</div>
+<div class="row">
+    <div class="col-sm-2 col-sm-offset-10 text-right" style="margin-bottom: 5px;" >
+        <a href="freeForm.jsp" class="btn btn-primary btn-sm"> 
+        	<span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+        	&nbsp;새글쓰기
+		</a>
+    </div>
+</div>
+	<table class="table table-striped table-bordered table-hover">
+	<colgroup>
+		<col width="10%" />
+		<col width="15%" />
+		<col />
+		<col width="10%" />
+		<col width="15%" />
+		<col width="10%" />
+	</colgroup>
+	<thead>
+		<tr>
+			<th>글번호</th>
+			<th>분류</th>
+			<th>제목</th>
+			<th>작성자</th>
+			<th>등록일</th>
+			<th>조회수</th>
+		</tr>
+	</thead>	
+	<tbody>
+	<c:forEach items="${freeBoard }" var="Board">
+		<tr class="text-center">
+			<td>${Board.boNo }</td>
+			<td>${Board.boCategory }</td>
+			<td class="text-left">
+				<a href="freeView.jsp?boNo=${Board.boNo }">
+					${Board.boTitle }
+				</a>
+			</td>
+			<td>${Board.boWriter }</td>
+			<td>${Board.boRegDate }</td>
+			<td>${Board.boHit }</td>
+		</tr>
+	</c:forEach>
+	</tbody>
+	</table>
+</div><!-- container --> 
+</body>
+</html>
+```
+
+#### freeView
+```js
+<%@page import="java.sql.SQLException"%>
+<%@page import="java.util.ArrayList"%>
+<%@page import="com.study.free.vo.freeBoardVO"%>
+<%@page import="java.sql.DriverManager"%>
+<%@page import="java.sql.ResultSet"%>
+<%@page import="java.sql.PreparedStatement"%>
+<%@page import="java.sql.Connection"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<%@ include file="/WEB-INF/inc/header.jsp"%>
+<title>자유게시판 - 글 보기</title>
+</head>
+<body>
+<%@ include file="/WEB-INF/inc/top.jsp" %>
+<div class="container">
+ <%
+ 
+
+	Connection conn=null; 
+	PreparedStatement pstmt=null;
+	ResultSet rs=null;
+	
+	try{
+		conn = DriverManager.getConnection("jdbc:apache:commons:dbcp:study");
+		StringBuffer sb = new StringBuffer();
+		sb.append("select bo_no,		bo_title,		bo_category,		");
+		sb.append(" 		  bo_writer,	bo_pass,		bo_content,		");
+		sb.append(" 		  bo_ip,	bo_hit,			");
+		sb.append(" 		  to_char(bo_reg_date, 'YYYY-MM-DD') AS bo_reg_date,		");
+		sb.append(" 		  to_char(bo_mod_date, 'YYYY-MM-DD') AS bo_mod_date,		");
+		sb.append(" 		  bo_del_yn									");
+		sb.append("from free_board											");
+		sb.append("where bo_no=      ? ");
+		
+		//pstmt객채 생성
+		pstmt=conn.prepareStatement(sb.toString()); 
+		//pstmt ? 값 설정
+		pstmt.setString(1, request.getParameter("boNo")); 
+		//쿼리실행
+		rs=pstmt.executeQuery(); 
+		List<freeBoardVO> freeBoard = new ArrayList<freeBoardVO>();
+		if(rs.next()){
+			freeBoardVO board = new freeBoardVO();	
+			board.setBoNo(rs.getInt("bo_no")); 
+			board.setBoTitle(rs.getString("bo_title")); 
+			board.setBoCategory(rs.getString("bo_category")); 
+			board.setBoWriter(rs.getString("bo_writer")); 
+			board.setBoPass(rs.getString("bo_pass"));
+			board.setBoContent(rs.getString("bo_content"));
+			board.setBoIp(rs.getString("bo_ip")); 
+			board.setBoHit(rs.getInt("bo_hit")); 
+			board.setBoRegDate(rs.getString("bo_reg_date")); 
+			board.setBoModDate(rs.getString("bo_mod_date")); 
+			board.setBoDelYn(rs.getString("bo_del_yn")); 
+			freeBoard.add(board); 
+			
+			request.setAttribute("Board", board);
+		}
+		
+	}catch(SQLException e){
+		e.printStackTrace();
+	}finally{
+
+	if(conn!=null){conn.close();}
+	if(pstmt!=null){pstmt.close();}
+	if(rs!=null){rs.close();}
+	}
+	
+%>
+
+
+
+
+	<div class="page-header">
+		<h3>자유게시판 - <small>글 보기</small></h3>
+	</div>
+		<table class="table table-striped table-bordered">
+			<tbody>
+				<tr>
+					<th>글번호</th>
+					<td>${Board.boNo }</td>
+				</tr>
+				<tr>
+					<th>글제목</th>
+					<td>${Board.boTitle }</td>
+				</tr>
+				<tr>
+					<th>글분류</th>
+					<td>${Board.boCategory }</td>
+				</tr>
+				<tr>
+					<th>작성자명</th>
+					<td>${Board.boWriter }</td>
+				</tr>
+				<!-- 비밀번호는 보여주지 않음  -->
+				<tr>
+					<th>내용</th>
+					<td>
+					<textarea rows="10" name="boContent" class="form-control input-sm">
+					${Board.boContent }
+					</textarea>
+					</td>
+				</tr>
+				<tr>
+					<th>등록자 IP</th>
+					<td>${Board.boIp }</td>
+				</tr>
+				<tr>
+					<th>조회수</th>
+					<td>${Board.boHit }</td>
+				</tr>
+				<tr>
+					<th>등록일자</th>
+					<td>${Board.boRegDate }</td>
+				</tr>
+				<tr>
+					<th>삭제여부</th>
+					<td>${Board.boDelYn }</td>
+				</tr>
+				<tr>
+					<td colspan="2">
+					  <div class="pull-left">
+							<a href="freeList.jsp" class="btn btn-default btn-sm"> 
+								<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+								&nbsp;&nbsp;목록
+							</a>
+						</div>
+						<div class="pull-right">
+							<a href="freeEdit.jsp?boNo=${Board.boNo }" class="btn btn-success btn-sm"> 
+								<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+								&nbsp;&nbsp;수정
+						  </a>
+						</div>
+					</td>					  
+				</tr>
+			</tbody>
+		</table>
+</div><!-- container -->
+</body>
+</html>
+```
+
+#### freeEdit
+```js
+<%@page import="java.sql.SQLException"%>
+<%@page import="java.util.ArrayList"%>
+<%@page import="com.study.free.vo.freeBoardVO"%>
+<%@page import="java.sql.DriverManager"%>
+<%@page import="java.sql.ResultSet"%>
+<%@page import="java.sql.PreparedStatement"%>
+<%@page import="java.sql.Connection"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" trimDirectiveWhitespaces="true"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<%@include file="/WEB-INF/inc/header.jsp"%>
+</head>
+<body>
+	<%@ include file="/WEB-INF/inc/top.jsp"%>
+	
+	
+	<%
+	Connection conn=null; 
+	PreparedStatement pstmt=null;
+	ResultSet rs=null;
+	
+	try{
+		conn = DriverManager.getConnection("jdbc:apache:commons:dbcp:study");
+		StringBuffer sb = new StringBuffer();
+		sb.append("select bo_no,		bo_title,		bo_category,		");
+		sb.append(" 		  bo_writer,	bo_pass,		bo_content,		");
+		sb.append(" 		  bo_ip,	bo_hit,			");
+		sb.append(" 		  to_char(bo_reg_date, 'YYYY-MM-DD') AS bo_reg_date,		");
+		sb.append(" 		  to_char(bo_mod_date, 'YYYY-MM-DD') AS bo_mod_date,		");
+		sb.append(" 		  bo_del_yn									");
+		sb.append("from free_board											");
+		sb.append("where bo_no=      ? ");
+		
+		//pstmt객채 생성
+		pstmt=conn.prepareStatement(sb.toString()); 
+		//pstmt ? 값 설정
+		pstmt.setString(1, request.getParameter("boNo")); 
+		//쿼리실행
+		rs=pstmt.executeQuery(); 
+			List<freeBoardVO> freeBoard = new ArrayList<freeBoardVO>();
+		if(rs.next()){
+			freeBoardVO board = new freeBoardVO();	
+			board.setBoNo(rs.getInt("bo_no")); 
+			board.setBoTitle(rs.getString("bo_title")); 
+			board.setBoCategory(rs.getString("bo_category")); 
+			board.setBoWriter(rs.getString("bo_writer")); 
+			board.setBoPass(rs.getString("bo_pass"));
+			board.setBoContent(rs.getString("bo_content"));
+			board.setBoIp(rs.getString("bo_ip")); 
+			board.setBoHit(rs.getInt("bo_hit")); 
+			board.setBoRegDate(rs.getString("bo_reg_date")); 
+			board.setBoModDate(rs.getString("bo_mod_date")); 
+			board.setBoDelYn(rs.getString("bo_del_yn")); 
+			freeBoard.add(board); 
+			
+			request.setAttribute("Board", board);
+		}
+		
+	}catch(SQLException e){
+		e.printStackTrace();
+	}finally{
+
+	if(conn!=null){conn.close();}
+	if(pstmt!=null){pstmt.close();}
+	if(rs!=null){rs.close();}
+	}
+	
+%>
+	
+	
+	
+	<div class="container">
+		<div class="page-header">
+			<h3>
+				자유게시판 - <small>글 수정</small>
+			</h3>
+		</div>
+		<form action="freeModify.jsp" method="post">
+			<table class="table table-striped table-bordered">
+				<colgroup>
+					<col width="20%" />
+					<col />
+				</colgroup>
+				<tr>
+					<th>글번호</th>
+					<td>${Board.boNo } <input type="hidden" value="${Board.boNo }" name="boNo"> </td>
+
+				</tr>
+				<tr>
+					<th>제목</th>
+					<td>
+						<input type="text" name="boTitle" value="${Board.boTitle }" class="form-control input-sm" required="required">
+					</td>
+				</tr>
+				<tr>
+					<th>작성자</th>
+					<td>
+						<input type="text" name="boWriter" value="${Board.boWriter }" class="form-control input-sm" required="required" readonly="readonly">
+					</td>
+				</tr>
+				<tr>
+					<th>비밀번호</th>
+					<td>
+						<input type="password" name="boPass" value="${Board.boPass }" 
+						class="form-control input-sm" required="required" pattern="\w{4,}" title="알파벳과 숫자로 4글자 이상 입력"> <span class="text-danger"> <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> 글 등록시에 입력한 비밀번호를 입력하세요.
+						</span>
+					</td>
+				</tr>
+				<tr>
+					<th>분류</th>
+					<td>
+						<select name="boCategory" class="form-control input-sm" required="required">
+							<option value="">-- 선택하세요--</option>
+							<option value="BC01" ${board.boCategory eq "BC01" ? "selected='selected'":""}>프로그램</option>
+							<option value="BC02" ${board.boCategory eq "BC02" ? "selected='selected'":""}>웹</option>
+							<option value="BC03" ${board.boCategory eq "BC03" ? "selected='selected'":""}>사는 이야기</option>
+							<option value="BC04" ${board.boCategory eq "BC04" ? "selected='selected'":""}>취업</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<th>내용</th>
+					<td>
+						<textarea rows="10" name="boContent" class="form-control input-sm">
+						${Board.boContent }
+						</textarea>
+					</td>
+				</tr>
+				<tr>
+					<th>IP</th>
+					<td>${Board.boIp }</td>
+				</tr>
+				<tr>
+					<th>조회수</th>
+					<td>${Board.boHit }</td>
+				</tr>
+				<tr>
+					<th>등록일자</th>
+					<td>${Board.boRegDate }</td>
+				</tr>
+				<tr>
+					<td colspan="2">
+						<div class="pull-left">
+							<a href="freeList.jsp" class="btn btn-default btn-sm"> <span class="glyphicon glyphicon-list" aria-hidden="true"></span> &nbsp;&nbsp;목록
+							</a>
+						</div>
+						<div class="pull-right">
+							<!-- 문제점 : 사용자가 입력박스에서 엔터를 치면 첫번째 submit의 formaction 방향으로 이동한다.  -->
+							<button type="submit" formaction="freeDelete.jsp" class="btn btn-sm btn-danger">
+								<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> &nbsp;&nbsp;삭제
+							</button>
+							<button type="submit" class="btn btn-sm btn-primary">
+								<span class="glyphicon glyphicon-save" aria-hidden="true"></span> &nbsp;&nbsp;저장
+							</button>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</form>
+
+	</div>
+	<!-- container -->
+</body>
+</html>
+```
+
+#### freeModify
+```js
+<%@page import="com.study.free.vo.freeBoardVO"%>
+<%@page import="java.sql.DriverManager"%>
+<%@page import="java.sql.ResultSet"%>
+<%@page import="java.sql.PreparedStatement"%>
+<%@page import="java.sql.Connection"%>
+<%@page import="java.sql.SQLException"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
+
+<%
+	request.setCharacterEncoding("UTF-8");
+%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<%@include file="/WEB-INF/inc/header.jsp"%>
+<title>Insert title here</title>
+</head>
+<body>
+<%@include file="/WEB-INF/inc/top.jsp"%>
+
+<jsp:useBean id="board" class="com.study.free.vo.freeBoardVO" ></jsp:useBean>
+<jsp:setProperty property="*" name="board"/> <!--Post 파라미터를 자동으로 받아줌 name으로 -->
+
+<%-- <%
+out.print();
+%> --%>
+
+<%
+
+	Connection conn=null; 
+	PreparedStatement pstmt=null;
+	ResultSet rs=null;
+	
+	try{
+		conn = DriverManager.getConnection("jdbc:apache:commons:dbcp:study");
+		StringBuffer sb = new StringBuffer();
+		sb.append("update free_board set     ");
+		sb.append("bo_title= ?            ,"); 
+		sb.append("bo_category= ?            ,"); 
+		sb.append("bo_pass= ?            ,"); 
+		sb.append("bo_content= ?            ,"); 
+		sb.append("bo_mod_date= sysdate            "); 
+		sb.append("where bo_no= ?       "); 		
+		
+		//pstmt객채 생성
+		pstmt=conn.prepareStatement(sb.toString()); 
+		//pstmt ? 값 설정
+		int i = 1 ; 
+
+		pstmt.setString(i++, board.getBoTitle()); 
+		pstmt.setString(i++, board.getBoCategory()); 
+		pstmt.setString(i++, board.getBoPass()); 
+		pstmt.setString(i++, board.getBoContent()); 
+		pstmt.setInt(i++, board.getBoNo()); 
+		//쿼리실행
+		int cnt = pstmt.executeUpdate();
+		
+		if(cnt == 1){
+			request.setAttribute("cnt", cnt); 
+		}
+		
+	}catch(SQLException e){
+		e.printStackTrace();
+	}finally{
+
+	if(conn!=null){conn.close();}
+	if(pstmt!=null){pstmt.close();}
+	if(rs!=null){rs.close();}
+	}
+	
+%>
+
+<div class="container">	
+	<h3>글 수정</h3>		
+		<c:if test="${cnt==1 }">
+			<div class="alert alert-success">
+				정상적으로 수정했습니다.
+			</div>		
+		</c:if>
+	
+		<c:if test="${cnt!=1 }">
+			<div class="alert alert-warning">
+			해당 글이 존재하지 않습니다.
+			</div>	
+		</c:if>
+</div>
+	<a href="freeList.jsp?" class="btn btn-default btn-sm">
+		<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+		&nbsp;목록
+	</a>
+
+
+</body>
+</html>
+```
+
+#### freeForm
+```js
+
+```
+
+#### freeRegist
+```js
+
+```
+
+#### freeDelete
+```js
+
+```
 
 
 
