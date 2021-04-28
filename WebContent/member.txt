@@ -1,0 +1,28 @@
+member 페이지 만들어주시면됩니다.
+아이디 중복체크 필수
+수정,삭제는 비밀번호 확인없이,
+비밀번호도 그냥 수정이 되도록        
+(수정,삭제는 관리자가 또는 로그인한사람이 자기것만 한다고 가정) 
+
+DAO exception 적용
+구현객체 이름 :
+MemberDaoOracle    
+MemberServiceImpl
+
+MemberDaoOracle은  implement IMemberDao
+MemberServiceImpl은 implement IMemberService 
+
+나중에 수업은 제가 만든 파일에서 진행할거니까
+member만드는건 자유롭게 
+
+ 
+ 
+ 
+ 
+  
+  
+  
+  
+  
+  
+  

@@ -1,0 +1,87 @@
+# Study2 준비
+1.제공파일 free member를 webContent에 복사
+2.java resource 파일 복사                  
+  쓸모없는거 지우기   
+  common.util에 쿠키말고 전부,   common.vo의 prodVO 삭제 
+3.WEB-INF 하위 컨텐츠 전부 복사       lib는 따로 복사 
+4.resource(부트스트랩,이미지) 복사 
+ 5. 프로젝트 우클릭 프로퍼티 project faces   java1.8로,
+ 	우측 runtinme 서버 tomcat9.0 설정 
+ 6.프로젝트 클린
+ 
+---------------------------------
+ 전형적 어플리케이션 5계층 
+ - Presentation Layer :        jsp파일                                                            메뉴판,식탁               
+ - Controller Layer :          컨트롤러파일(현재는 없어서 jsp파일이 담당)    지배인(서빙)
+ - Business/Logic Layer :      Service							      요리사
+ - Persistence Layer :         Dao								      재료담당자
+ - Domain Layer :              VO                                  재료
+
+
+손님          :  메뉴판 보고 음식 주문                                               음식받음 
+지배인       :  손님의 요청을 요리사한테 전달                                   손님한테 음식 전달
+요리사       :  요청을 받고 재료담당자한테 재료 가져오라고 함            재료 전달받아서 요리 후 지배인한테 전달 
+재료담당자 :  재료 가져와서 요리사한테 전달 
+음식          :  재료 
+ 
+--
+Java 예외  (이것이 자바다 9장) 
+ Exception (Checked Exception) : 개발자가 처리해야 하는 예외 (필수)  
+ RuntimeException (UnChecked Exception) :  개발자가 해당 예외의 상황에 따라 예외에 대해서 처리 가능 (옵션)
+
+SQLException 에 대해서 
+ JDBC API 에서 모든 메서드에 SQLException 을 던지도록 되어 있습니다.
+ 이로 인해 개발자는 JDBC를 사용 할 때 SQLException을 처리하거나 (try ~ catch ~) 
+ 또는 호출 메서드에 던져야 하는 상황을 강제합니다.(throws ~) 
+      
+예외는 어떤 식으로 구성하고 처리 해야 할까?
+ - 사용자가 예외에 대한 처리를 하기 어렵다면 RuntimeException 으로 구성 해라
+ 
+ - 예외는 추상적으로 만들지 않기 
+   : 예외를 처리하는 페이지에서 어떤 예외가 발생했는지 의미를 파악 할 수 있도록 하자
+    if(age > 200) throw Exception()  : X 
+    if(age > 200) throw OverAgeException() : O
+ - 예외처리를 못할것 같으면 그냥 던져라 
+ - 예외를 먹지마라 
+    } catch(SQLExcetpion e){  // catch 했으면서 아무것도 안함 
+    }
+
+
+ - 서비스단에서 발생시킬 예외 
+ com.study.exception
+ BizException <- Exception (Checked Exception)  
+  <- BizNotEffectedException 
+  <- BizDuplicateKeyException 
+  <- BizNotFoundException 
+  
+ - Dao 단에서 발생시킬 예외   (SQLExcepiton에서 발생하는 에러는 쿼리문 에러겠죠.. 에러났을 때 뭐 하기보다는 잘못된 부분을 수정.)
+  DaoException <- RuntimeException (UnChecked Excption)
+  <- DaoDuplicateKeyException 
+  
+DaoException 잘 처리하면 BizNotEffected 걸릴 일 없다.	
+BizNotEffected는 SQL에러는 안 나는데  
+수정되는게 없어 cnt가 1이 아닌경우에만 발생 
+어쨋든 BizNotEffected는 있어야하는데
+발생할 일이 없을 거다 (modify,delete,insert는 다 effected가 잡아주는게 맞다)
+  
+  
+-----------------------------------------------------------------
+DAO, Service 명명규칙 
+IMemberDao  <- MemberDaoOracle    
+ insertXxx
+ updateXxx
+ deleteXxx
+ getXxx     (or findByXxx , selectXxx) 
+ getXxxList (or findXxxAll , selectXxxList)
+ 
+IMemberService <- MemberSeriviceImpl 
+ : 서비스 구현체는 끝에 Impl 사용  
+  registXxx
+  modifyXxx
+  removeXxx
+  getXxx
+  getXxxList   
+  
+
+
+

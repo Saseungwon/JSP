@@ -1,0 +1,26 @@
+1.제공파일 free member를 webContent에 복사
+2.java resource 파일 복사                  
+  쓸모없는거 지우기   
+  common.util에 쿠키말고 전부,   common.vo의 prodVO 삭제 
+3.WEB-INF 하위 컨텐츠 전부 복사       lib는 따로 복사 
+4.resource(부트스트랩,이미지) 복사 
+ 
+ 5. 프로젝트 우클릭 프로퍼티 project faces   java1.8로,
+ 	우측 runtinme 서버 tomcat9.0 설정 
+ 6.프로젝트 클린
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  
+  
+  
+  
+  
+  
+  
